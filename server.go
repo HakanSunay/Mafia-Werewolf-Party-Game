@@ -1,75 +1,20 @@
 package main
 
 import (
-"bufio"
-"fmt"
-"log"
-"math/rand"
-"net"
-"time"
+	"Mafia-Werewolf-Party-Game/src"
+	"bufio"
+	"fmt"
+	"log"
+	"net"
 )
-
-const ROLECOUNT = 4
-
-type Role int
-
-const (
-	CITIZEN Role = iota
-	MAFIA
-	DOCTOR
-	SHERIFF
-)
-var(
-	citizenCount uint = 0
-	mafiaCount uint = 0
-	doctorCount uint = 0
-	sheriffCount uint = 0
-	clientCount uint = 0
-)
-
-type Player struct {
-	number       uint
-	name         string
-	job          Role
-	invulnerable bool
-	votes        uint
-}
-
-func (pl *Player) save() {
-	pl.invulnerable = true
-}
-
-func (pl *Player) kill() {
-
-}
-
-func randomJob(curRoles *map[Role]uint) Role {
-	rand.Seed(time.Now().UnixNano())
-	if clientCount < 4 {
-		choice := rand.Intn(ROLECOUNT)
-		return Role(choice)
-	} else if doctorCount == 0 {
-		doctorCount+=1
-		return DOCTOR
-	} else if sheriffCount == 0 {
-		sheriffCount+=1
-		return SHERIFF
-	} else if citizenCount < mafiaCount {
-		citizenCount+=1
-		return CITIZEN
-	} else {
-		mafiaCount+=1
-		return MAFIA
-	}
-}
 
 func main() {
 	ln, err := net.Listen("tcp", "127.0.0.1:8080")
 	if err != nil {
 		log.Println(err.Error())
 	}
-	currentRoles := make(map[Role]uint)
-	allClients := make(map[net.Conn]Player)
+	currentRoles := make(map[src.Role]uint)
+	allClients := make(map[net.Conn]src.Player)
 	newConnections := make(chan net.Conn)
 	deadConnections := make(chan net.Conn)
 	messages := make(chan string)
@@ -81,7 +26,7 @@ func main() {
 			if err != nil {
 				log.Println(err.Error())
 			}
-			clientCount += 1
+			// src.clientCount += 1
 			conn.Write([]byte("Tell me your name, babe!"))
 			nameByte := make([]byte, 1024)
 			go func() {
@@ -89,10 +34,12 @@ func main() {
 				if err != nil {
 					log.Println(err.Error())
 				}
-				allClients[conn] = Player{clientCount, string(nameByte[:readBytes-1]),
-					randomJob(&currentRoles), false, 0}
+				allClients[conn] = src.Player{false,nil,src.ClientCount,
+				string(nameByte[:readBytes-1]), src.RandomJob(&currentRoles),
+				false, 0}
 				newConnections <- conn
-				messages <- fmt.Sprintln(allClients[conn].name, " joined the room!")
+				messages <- fmt.Sprintln(allClients[conn].Name, " joined the room!")
+				fmt.Println(allClients[conn].Name," connected ",allClients[conn].Job)
 			}()
 			//readBytes, err := conn.Read(nameByte)
 			//if err != nil {
@@ -106,7 +53,7 @@ func main() {
 	for {
 		select {
 		case curCon := <-newConnections:
-			clientCount += 1
+			src.ClientCount += 1
 			//curCon.Write([]byte("Tell me your name, babe!"))
 			//nameByte := make([]byte, 1024)
 			//readBytes, err := curCon.Read(nameByte)
@@ -121,7 +68,7 @@ func main() {
 					if err != nil {
 						break
 					}
-					messages <- fmt.Sprintln("\n", allClients[curCon].name, " : ", m)
+					messages <- fmt.Sprintln("\n", allClients[curCon].Name, " : ", m)
 				}
 				deadConnections <- conn
 			}(curCon)
@@ -133,7 +80,7 @@ func main() {
 			gonePlayer := allClients[lostClient]
 			go func(playerName string) {
 				messages <- fmt.Sprintln("\n", playerName, " left")
-			}(gonePlayer.name)
+			}(gonePlayer.Name)
 			delete(allClients, lostClient)
 		}
 	}
