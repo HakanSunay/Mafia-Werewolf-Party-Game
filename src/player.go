@@ -1,5 +1,7 @@
 package src
 
+import "fmt"
+
 const ROLECOUNT = 4
 
 type Role int
@@ -12,33 +14,37 @@ const (
 )
 
 type Player struct {
-	roomOwner    bool
-	room 		 Room
-	number       uint
+	RoomOwner    bool
+	Room         *Room
+	Number       uint
 	Name         string
 	Job          Role
-	invulnerable bool
-	votes        uint
+	Invulnerable bool
+	Votes        uint
+}
+
+func (pl Player) String() string {
+	return fmt.Sprintf("Name: %v and Job: %v", pl.Name, pl.Job)
 }
 
 func (pl *Player) Save() {
-	pl.invulnerable = true
+	pl.Invulnerable = true
 }
 
 func (pl *Player) Kill() {
 
 }
 
-func (pl *Player) CreateRoom(roomName string){
-	CreateRoom(roomName, pl)
+func (pl *Player) CreateRoom(roomName string) *Room {
+	return CreateRoom(roomName, pl)
 }
 
-func (pl* Player) Blame(plName string){
+func (pl *Player) Blame(plName string) {
 
 }
 
-func (pl* Player) StartGame(){
-	if pl.roomOwner == true && len(pl.room.players) >= 6 {
-		pl.room.StartGame()
+func (pl *Player) StartGame() {
+	if pl.RoomOwner == true && len(pl.Room.players) >= 6 {
+		pl.Room.StartGame()
 	}
 }

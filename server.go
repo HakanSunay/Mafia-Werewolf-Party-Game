@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"regexp"
 )
 
 func main() {
@@ -13,12 +14,12 @@ func main() {
 	if err != nil {
 		log.Println(err.Error())
 	}
+	allRooms := make([]src.Room, 0)
 	currentRoles := make(map[src.Role]uint)
 	allClients := make(map[net.Conn]src.Player)
 	newConnections := make(chan net.Conn)
 	deadConnections := make(chan net.Conn)
 	messages := make(chan string)
-	// clientCount := 0
 
 	go func() {
 		for {
@@ -34,19 +35,12 @@ func main() {
 				if err != nil {
 					log.Println(err.Error())
 				}
-				allClients[conn] = src.Player{false,nil,src.ClientCount,
-				string(nameByte[:readBytes-1]), src.RandomJob(&currentRoles),
-				false, 0}
+				allClients[conn] = src.Player{false, nil, src.ClientCount,
+					string(nameByte[:readBytes-1]), src.RandomJob(&currentRoles),
+					false, 0}
 				newConnections <- conn
 				messages <- fmt.Sprintln(allClients[conn].Name, " joined the room!")
-				fmt.Println(allClients[conn].Name," connected ",allClients[conn].Job)
 			}()
-			//readBytes, err := conn.Read(nameByte)
-			//if err != nil {
-			//	log.Println(err.Error())
-			//}
-			//allClients[conn] = Player{clientCount,string(nameByte[:readBytes-1])}
-			//newConnections <- conn
 		}
 	}()
 
@@ -54,13 +48,6 @@ func main() {
 		select {
 		case curCon := <-newConnections:
 			src.ClientCount += 1
-			//curCon.Write([]byte("Tell me your name, babe!"))
-			//nameByte := make([]byte, 1024)
-			//readBytes, err := curCon.Read(nameByte)
-			//if err != nil {
-			//	log.Println(err.Error())
-			//}
-			//allClients[curCon] = Player{clientCount,string(nameByte[:readBytes-1])}
 			go func(conn net.Conn) {
 				rd := bufio.NewReader(conn)
 				for {
@@ -68,7 +55,29 @@ func main() {
 					if err != nil {
 						break
 					}
+					if allClients[curCon].Room == nil {
+						jre := regexp.MustCompile(`#JOIN_ROOM (\w+)`)
+						cre := regexp.MustCompile(`#CREATE_ROOM (?P<RoomName>\w+)`)
+						if cre.MatchString(m) == true {
+							fmt.Println("here1")
+							res := cre.FindStringSubmatch(m)
+							curPlayer := allClients[curCon]
+							newRoom := curPlayer.CreateRoom(res[1])
+							allRooms = append(allRooms, *newRoom)
+							fmt.Println("here2")
+						} else if jre.MatchString(m) == true {
+							res := jre.FindStringSubmatch(m)
+							existingRoom := src.FindRoom(allRooms, res[1])
+							if existingRoom != nil {
+								curPlayer := allClients[curCon]
+								existingRoom.AddPlayer(&curPlayer)
+							} else {
+								curCon.Write([]byte("Room " + res[1] + " doesn't exist!"))
+							}
+						}
+					}
 					messages <- fmt.Sprintln("\n", allClients[curCon].Name, " : ", m)
+					fmt.Println(allRooms)
 				}
 				deadConnections <- conn
 			}(curCon)
