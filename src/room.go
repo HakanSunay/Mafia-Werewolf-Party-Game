@@ -90,3 +90,12 @@ func (r *Room) Reset() {
 		player.ResetRound()
 	}
 }
+
+func (r* Room) GetOwner() *Player{
+	for _,pl := range r.players {
+		if pl.RoomOwner == true{
+			return &pl
+		}
+	}
+	return nil
+}
