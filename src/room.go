@@ -8,7 +8,7 @@ import (
 
 type Room struct {
 	name    string
-	players []Player
+	players []*Player
 }
 
 func (r Room) String() string {
@@ -17,8 +17,8 @@ func (r Room) String() string {
 
 func CreateRoom(name string, player *Player) *Room {
 	resultRoom := &Room{name, nil}
-	newPlayers := make([]Player, 0)
-	newPlayers = append(newPlayers, *player)
+	newPlayers := make([]*Player, 0)
+	newPlayers = append(newPlayers, player)
 	resultRoom.players = newPlayers
 	return resultRoom
 }
@@ -27,8 +27,8 @@ func (r *Room) AddPlayer(player *Player) {
 	if len(r.players) == 0 {
 		player.RoomOwner = true
 	}
-	r.players = append(r.players, *player)
 	player.Room = r
+	r.players = append(r.players, player)
 }
 
 var (
@@ -78,7 +78,7 @@ func FindRoom(rooms []Room, name string) *Room {
 func (r *Room) FindPlayer(name string) *Player {
 	for _, rm := range r.players {
 		if rm.Name == name {
-			return &rm
+			return rm
 		}
 	}
 	return nil
@@ -91,10 +91,10 @@ func (r *Room) Reset() {
 	}
 }
 
-func (r* Room) GetOwner() *Player{
-	for _,pl := range r.players {
-		if pl.RoomOwner == true{
-			return &pl
+func (r *Room) GetOwner() *Player {
+	for _, pl := range r.players {
+		if pl.RoomOwner == true {
+			return pl
 		}
 	}
 	return nil

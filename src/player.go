@@ -1,7 +1,5 @@
 package src
 
-import "fmt"
-
 const ROLECOUNT = 4
 
 type Role int
@@ -24,9 +22,9 @@ type Player struct {
 	Dead         bool
 }
 
-func (pl Player) String() string {
+/*func (pl Player) String() string {
 	return fmt.Sprintf("Name: %v and Job: %v", pl.Name, pl.Job)
-}
+}*/
 
 // This method is invoked when a player of type DOCTOR
 // decides to use his special ability on us
