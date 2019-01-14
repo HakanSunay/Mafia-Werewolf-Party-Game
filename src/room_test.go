@@ -6,9 +6,9 @@ func TestCreateRoom(t *testing.T) {
 	player := Player{}
 	player.Name = "Hakan"
 	room := CreateRoom("GoRoom", &player)
-	for _,pl := range room.players{
-		if pl.RoomOwner == true{
-			if pl.Name != player.Name{
+	for _, pl := range room.players {
+		if pl.RoomOwner == true {
+			if pl.Name != player.Name {
 				t.Error("Room owner names don't match, CreateRoom not working!")
 			}
 		}
@@ -36,13 +36,13 @@ func TestRoom_AddPlayerBecomesRoomOwner(t *testing.T) {
 func TestRoom_Reset(t *testing.T) {
 	room := Room{}
 	players := [6]Player{}
-	for _, pl := range players{
+	for _, pl := range players {
 		pl.Invulnerable = true
 		room.AddPlayer(&pl)
 	}
 	room.Reset()
-	for _, pl := range players{
-		if pl.Invulnerable == true{
+	for _, pl := range players {
+		if pl.Invulnerable == true {
 			t.Error("Reset not working!")
 		}
 	}

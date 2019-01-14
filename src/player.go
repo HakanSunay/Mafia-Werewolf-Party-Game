@@ -21,7 +21,7 @@ type Player struct {
 	Job          Role
 	Invulnerable bool
 	Votes        uint
-	Dead		 bool
+	Dead         bool
 }
 
 func (pl Player) String() string {
@@ -57,7 +57,7 @@ func (pl *Player) StartGame() {
 	}
 }
 
-func (pl* Player) ResetRound(){
+func (pl *Player) ResetRound() {
 	pl.Invulnerable = false
 	pl.Votes = 0
 }

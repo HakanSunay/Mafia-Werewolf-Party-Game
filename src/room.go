@@ -85,8 +85,8 @@ func (r *Room) FindPlayer(name string) *Player {
 }
 
 // Reset changes after round completion
-func (r* Room) Reset(){
-	for _, player := range r.players{
+func (r *Room) Reset() {
+	for _, player := range r.players {
 		player.ResetRound()
 	}
 }

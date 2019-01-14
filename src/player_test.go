@@ -37,15 +37,14 @@ func TestPlayer_Blame(t *testing.T) {
 
 func TestPlayer_ResetRound(t *testing.T) {
 	players := [6]Player{}
-	for _, pl := range players{
+	for _, pl := range players {
 		pl.Votes++
 	}
-	for _, pl := range players{
+	for _, pl := range players {
 		pl.ResetRound()
 		if pl.Votes != 0 {
 			t.Error("Reset round not working!")
 		}
 	}
-
 
 }
