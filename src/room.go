@@ -24,6 +24,9 @@ func CreateRoom(name string, player *Player) *Room {
 }
 
 func (r *Room) AddPlayer(player *Player) {
+	if len(r.players) == 0 {
+		player.RoomOwner = true
+	}
 	r.players = append(r.players, *player)
 	player.Room = r
 }
@@ -79,4 +82,11 @@ func (r *Room) FindPlayer(name string) *Player {
 		}
 	}
 	return nil
+}
+
+// Reset changes after round completion
+func (r* Room) Reset(){
+	for _, player := range r.players{
+		player.ResetRound()
+	}
 }

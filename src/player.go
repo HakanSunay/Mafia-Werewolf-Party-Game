@@ -21,6 +21,7 @@ type Player struct {
 	Job          Role
 	Invulnerable bool
 	Votes        uint
+	Dead		 bool
 }
 
 func (pl Player) String() string {
@@ -34,8 +35,8 @@ func (pl *Player) Save() {
 }
 
 // Kill the current player
-func (pl *Player) Kill() {
-
+func (pl *Player) Die() {
+	pl.Dead = true
 }
 
 func (pl *Player) CreateRoom(roomName string) *Room {
@@ -44,8 +45,8 @@ func (pl *Player) CreateRoom(roomName string) *Room {
 
 // Blames another player using their name as a parameter
 // aka votes to send him to prison
-func (pl *Player) Blame(plName string) {
-
+func (pl *Player) Blame(blamee *Player) {
+	blamee.Votes++
 }
 
 // This method can be invoked only if
@@ -54,4 +55,9 @@ func (pl *Player) StartGame() {
 	if pl.RoomOwner == true && len(pl.Room.players) >= 6 {
 		pl.Room.StartGame()
 	}
+}
+
+func (pl* Player) ResetRound(){
+	pl.Invulnerable = false
+	pl.Votes = 0
 }
