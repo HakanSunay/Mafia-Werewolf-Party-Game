@@ -1,6 +1,8 @@
 package src
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestCreateRoom(t *testing.T) {
 	player := Player{}
@@ -45,5 +47,14 @@ func TestRoom_Reset(t *testing.T) {
 		if pl.Invulnerable == true {
 			t.Error("Reset not working!")
 		}
+	}
+}
+
+func TestRoom_GetOwner(t *testing.T) {
+	room := Room{}
+	player := Player{}
+	room.AddPlayer(&player)
+	if room.GetOwner() != &player {
+		t.Error("GetOwner not working!")
 	}
 }
