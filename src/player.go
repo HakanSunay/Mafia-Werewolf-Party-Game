@@ -27,10 +27,13 @@ func (pl Player) String() string {
 	return fmt.Sprintf("Name: %v and Job: %v", pl.Name, pl.Job)
 }
 
+// This method is invoked when a player of type DOCTOR
+// decides to use his special ability on us
 func (pl *Player) Save() {
 	pl.Invulnerable = true
 }
 
+// Kill the current player
 func (pl *Player) Kill() {
 
 }
@@ -39,10 +42,14 @@ func (pl *Player) CreateRoom(roomName string) *Room {
 	return CreateRoom(roomName, pl)
 }
 
+// Blames another player using their name as a parameter
+// aka votes to send him to prison
 func (pl *Player) Blame(plName string) {
 
 }
 
+// This method can be invoked only if
+// the current object is the owner of the room
 func (pl *Player) StartGame() {
 	if pl.RoomOwner == true && len(pl.Room.players) >= 6 {
 		pl.Room.StartGame()

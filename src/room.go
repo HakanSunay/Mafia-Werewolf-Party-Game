@@ -36,6 +36,7 @@ var (
 	ClientCount  uint = 0
 )
 
+// Generates a random role for the players in the room
 func RandomJob(curRoles *map[Role]uint) Role {
 	rand.Seed(time.Now().UnixNano())
 	if ClientCount < 4 {
@@ -60,6 +61,7 @@ func (r *Room) StartGame() {
 
 }
 
+// Finds the sought room, when JOIN room is called
 func FindRoom(rooms []Room, name string) *Room {
 	for _, rm := range rooms {
 		if rm.name == name {
@@ -69,6 +71,7 @@ func FindRoom(rooms []Room, name string) *Room {
 	return nil
 }
 
+// Searches for a player using their name in the current room
 func (r *Room) FindPlayer(name string) *Player {
 	for _, rm := range r.players {
 		if rm.Name == name {
