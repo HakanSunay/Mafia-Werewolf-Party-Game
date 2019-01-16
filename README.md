@@ -31,14 +31,14 @@ go run client.go <hostname> <port>
 ```
 ### Gameplay
 1. You will be prompted to either CREATE or JOIN a ROOM
-2. Whatever your decision was, the game can be started by the room creator when a minimum of 6 players gather.
+2. Whatever your decision is, the game can only be started by the room creator when a minimum of 6 players gather.
 3. Random hidden roles are assigned to all of the players.
 4. Everyone falls asleep.
-5. The _Mafia_ wakes up, the chat is opened for Mafia members only and they vote to eliminate someone and fall asleep.
+5. The _Mafia_ members wake up, the chat is opened for Mafia members only and they vote to eliminate someone and fall asleep.
 6. The _Doctor_ wakes up, the chat is opened only for him and he is prompted to select a player to save and then he falls asleep as well.
 7. Everybody wakes up, the chat is opened for everyone and they vote to choose the mafia to send to prison.
 8. The sheriff arrests the chosen suspect.
-9. Go back to 4, until either one of _Mafia_/_Innocent_ **Count** becomes 0.
+9. Go back to 4, until either one of _Mafia_ / _Innocent_ **Count** becomes 0.
 
 ## Possible Future Upgrades
 * Run the server on AWS
