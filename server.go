@@ -9,17 +9,22 @@ import (
 	"regexp"
 )
 
+type Mesg struct {
+	content string
+	room    *src.Room
+}
+
 func main() {
 	ln, err := net.Listen("tcp", "127.0.0.1:8080")
 	if err != nil {
 		log.Println(err.Error())
 	}
-	allRooms := make([]src.Room, 0)
+	allRooms := make([]*src.Room, 0)
 	currentRoles := make(map[src.Role]uint)
-	allClients := make(map[net.Conn]src.Player)
+	allClients := make(map[net.Conn]*src.Player)
 	newConnections := make(chan net.Conn)
 	deadConnections := make(chan net.Conn)
-	messages := make(chan string)
+	messages := make(chan Mesg)
 
 	go func() {
 		for {
@@ -35,11 +40,12 @@ func main() {
 				if err != nil {
 					log.Println(err.Error())
 				}
-				allClients[conn] = src.Player{false, nil, src.ClientCount,
+				allClients[conn] = &src.Player{false, nil, src.ClientCount,
 					string(nameByte[:readBytes-1]), src.RandomJob(&currentRoles),
 					false, 0, false}
 				newConnections <- conn
-				messages <- fmt.Sprintln(allClients[conn].Name, " joined the room!")
+				messages <- Mesg{fmt.Sprintln(allClients[conn].Name, " joined the room!"),
+					nil}
 			}()
 		}
 	}()
@@ -55,40 +61,47 @@ func main() {
 					if err != nil {
 						break
 					}
-					if allClients[curCon].Room == nil {
+					if allClients[conn].Room == nil {
 						jre := regexp.MustCompile(`#JOIN_ROOM (\w+)`)
 						cre := regexp.MustCompile(`#CREATE_ROOM (?P<RoomName>\w+)`)
 						if cre.MatchString(m) == true {
-							fmt.Println("here1")
 							res := cre.FindStringSubmatch(m)
-							curPlayer := allClients[curCon]
-							newRoom := curPlayer.CreateRoom(res[1])
-							allRooms = append(allRooms, *newRoom)
-							fmt.Println("here2")
+							newRoom := &src.Room{}
+							newRoom.SetName(res[1])
+							newRoom.AddPlayer(allClients[conn])
+							allRooms = append(allRooms, newRoom)
 						} else if jre.MatchString(m) == true {
 							res := jre.FindStringSubmatch(m)
-							existingRoom := src.FindRoom(allRooms, res[1])
-							if existingRoom != nil {
-								curPlayer := allClients[curCon]
-								existingRoom.AddPlayer(&curPlayer)
-							} else {
-								curCon.Write([]byte("Room " + res[1] + " doesn't exist!"))
+							exists := false
+							for _,r := range allRooms{
+								if r.GetName() == res[1]{
+									exists = true
+									r.AddPlayer(allClients[conn])
+								}
 							}
+							if exists == false {
+								conn.Write([]byte("Room " + res[1] + " doesn't exist!"))
+							}
+
 						}
 					}
-					messages <- fmt.Sprintln("\n", allClients[curCon].Name, " : ", m)
-					fmt.Println(allRooms)
+					messages <- Mesg{fmt.Sprintln("\n", allClients[conn].Name, " : ", m),
+						allClients[conn].Room}
 				}
 				deadConnections <- conn
 			}(curCon)
 		case msg := <-messages:
-			for client := range allClients {
-				client.Write([]byte(msg))
+			for conn, client := range allClients {
+				if msg.room == client.Room && msg.room != nil {
+					conn.Write([]byte(msg.content))
+				} else if msg.room == nil && client.Room == nil {
+					conn.Write([]byte(msg.content))
+				}
 			}
 		case lostClient := <-deadConnections:
 			gonePlayer := allClients[lostClient]
 			go func(playerName string) {
-				messages <- fmt.Sprintln("\n", playerName, " left")
+				messages <- Mesg{fmt.Sprintln("\n", playerName, " left"), gonePlayer.Room}
 			}(gonePlayer.Name)
 			delete(allClients, lostClient)
 		}

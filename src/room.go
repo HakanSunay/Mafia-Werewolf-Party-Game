@@ -65,8 +65,8 @@ func (r *Room) StartGame() {
 }
 
 // Finds the sought room, when JOIN room is called
-func FindRoom(rooms []Room, name string) *Room {
-	for _, rm := range rooms {
+func FindRoom(rooms *[]Room, name string) *Room {
+	for _, rm := range *rooms {
 		if rm.name == name {
 			return &rm
 		}
@@ -98,4 +98,16 @@ func (r *Room) GetOwner() *Player {
 		}
 	}
 	return nil
+}
+
+func (r *Room) GetPlayers() []*Player {
+	return r.players
+}
+
+func (r *Room) SetName(name string) {
+	r.name = name
+}
+
+func (r* Room) GetName() string{
+	return r.name
 }
