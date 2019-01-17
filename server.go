@@ -73,8 +73,8 @@ func main() {
 						} else if jre.MatchString(m) == true {
 							res := jre.FindStringSubmatch(m)
 							exists := false
-							for _,r := range allRooms{
-								if r.GetName() == res[1]{
+							for _, r := range allRooms {
+								if r.GetName() == res[1] {
 									exists = true
 									r.AddPlayer(allClients[conn])
 								}

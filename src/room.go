@@ -108,6 +108,6 @@ func (r *Room) SetName(name string) {
 	r.name = name
 }
 
-func (r* Room) GetName() string{
+func (r *Room) GetName() string {
 	return r.name
 }
