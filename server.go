@@ -85,12 +85,18 @@ func main() {
 								conn.Write([]byte("Room " + res[1] + " doesn't exist!"))
 							}
 
-						} else if allre.MatchString(m) == true{
+						} else if allre.MatchString(m) == true {
 							var buffer bytes.Buffer
-							for _, r := range allRooms{
+							for _, r := range allRooms {
 								buffer.WriteString(r.GetName() + " owned by " + r.GetOwner().Name + "\n")
 							}
 							conn.Write([]byte("The currently available rooms are: \n" + buffer.String()))
+						}
+					} else if allClients[conn].Room != nil && allClients[conn].RoomOwner {
+						startGameReg := regexp.MustCompile(`#START_GAME`)
+						if startGameReg.MatchString(m) == true {
+							allClients[conn].StartGame()
+							//TODO
 						}
 					}
 					messages <- Mesg{fmt.Sprintln("\n", allClients[conn].Name, " : ", m),
@@ -104,6 +110,8 @@ func main() {
 					conn.Write([]byte(msg.content))
 				} else if msg.room == nil && client.Room == nil {
 					conn.Write([]byte(msg.content))
+				} else if msg.room.IsPlaying() {
+					//TODO
 				}
 			}
 		case lostClient := <-deadConnections:

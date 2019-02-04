@@ -9,6 +9,7 @@ import (
 type Room struct {
 	name    string
 	players []*Player
+	playing bool
 }
 
 func (r Room) String() string {
@@ -16,7 +17,7 @@ func (r Room) String() string {
 }
 
 func CreateRoom(name string, player *Player) *Room {
-	resultRoom := &Room{name, nil}
+	resultRoom := &Room{name, nil, false}
 	newPlayers := make([]*Player, 0)
 	newPlayers = append(newPlayers, player)
 	resultRoom.players = newPlayers
@@ -61,7 +62,11 @@ func RandomJob(curRoles *map[Role]uint) Role {
 }
 
 func (r *Room) StartGame() {
+	r.playing = true
+}
 
+func (r* Room) IsPlaying() bool {
+	return r.playing
 }
 
 // Finds the sought room, when JOIN room is called
