@@ -40,6 +40,13 @@ go run client.go <hostname> <port>
 8. The sheriff arrests the chosen suspect.
 9. Go back to 4, until either one of _Mafia_ / _Innocent_ **Count** becomes 0.
 
+#### Commands
+>\#CREATE_ROOM
+
+>\#JOIN_ROOM roomName
+
+>\#ROOMS 
+
 ## Possible Future Upgrades
 * Run the server on AWS
 * Connect using the Client using the Server's public IP and Port

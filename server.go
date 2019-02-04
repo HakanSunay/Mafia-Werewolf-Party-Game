@@ -3,6 +3,7 @@ package main
 import (
 	"Mafia-Werewolf-Party-Game/src"
 	"bufio"
+	"bytes"
 	"fmt"
 	"log"
 	"net"
@@ -64,6 +65,7 @@ func main() {
 					if allClients[conn].Room == nil {
 						jre := regexp.MustCompile(`#JOIN_ROOM (\w+)`)
 						cre := regexp.MustCompile(`#CREATE_ROOM (?P<RoomName>\w+)`)
+						allre := regexp.MustCompile(`#ROOMS`)
 						if cre.MatchString(m) == true {
 							res := cre.FindStringSubmatch(m)
 							newRoom := &src.Room{}
@@ -83,6 +85,12 @@ func main() {
 								conn.Write([]byte("Room " + res[1] + " doesn't exist!"))
 							}
 
+						} else if allre.MatchString(m) == true{
+							var buffer bytes.Buffer
+							for _, r := range allRooms{
+								buffer.WriteString(r.GetName() + " owned by " + r.GetOwner().Name + "\n")
+							}
+							conn.Write([]byte("The currently available rooms are: \n" + buffer.String()))
 						}
 					}
 					messages <- Mesg{fmt.Sprintln("\n", allClients[conn].Name, " : ", m),
