@@ -13,6 +13,12 @@ type Room struct {
 	stage   int
 }
 
+const (
+	MAFIASTAGE int = iota
+	DOCTORSTAGE
+	ALLSTAGE
+)
+
 func (r Room) String() string {
 	return fmt.Sprintf("The name of the room is %v and the players are %v", r.name, r.players)
 }
@@ -125,4 +131,5 @@ func (r *Room) GetStage() int {
 
 func (r *Room) NextStage() {
 	r.stage++
+	r.stage%=3
 }

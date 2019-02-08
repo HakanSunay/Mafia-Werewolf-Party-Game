@@ -128,10 +128,16 @@ func main() {
 				} else if msg.room == nil && client.Room == nil {
 					conn.Write([]byte(msg.content))
 				} else if msg.room != nil && msg.room == client.Room && msg.room.IsPlaying() {
-					//TODO
-					// if MAFIA stage
-					// else if DOCTOR stage
-					// else if ALL STAGE
+					// TODO
+					currentStage := msg.room.GetStage()
+					if currentStage == src.MAFIASTAGE {
+
+					} else if currentStage == src.DOCTORSTAGE {
+
+					} else if currentStage == src.ALLSTAGE {
+
+					}
+					// msg.room.NextStage()
 				}
 			}
 		case lostClient := <-deadConnections:
