@@ -58,22 +58,22 @@ func main() {
 			go func(conn net.Conn) {
 				rd := bufio.NewReader(conn)
 				for {
-					m, err := rd.ReadString('\n')
+					mesg, err := rd.ReadString('\n')
 					if err != nil {
 						break
 					}
 					if allClients[conn].Room == nil {
-						jre := regexp.MustCompile(`#JOIN_ROOM (\w+)`)
-						cre := regexp.MustCompile(`#CREATE_ROOM (?P<RoomName>\w+)`)
-						allre := regexp.MustCompile(`#ROOMS`)
-						if cre.MatchString(m) == true {
-							res := cre.FindStringSubmatch(m)
+						joinRoomReg := regexp.MustCompile(`#JOIN_ROOM (\w+)`)
+						createRoomReg := regexp.MustCompile(`#CREATE_ROOM (?P<RoomName>\w+)`)
+						allRoomsReg := regexp.MustCompile(`#ROOMS`)
+						if createRoomReg.MatchString(mesg) == true {
+							res := createRoomReg.FindStringSubmatch(mesg)
 							newRoom := &src.Room{}
 							newRoom.SetName(res[1])
 							newRoom.AddPlayer(allClients[conn])
 							allRooms = append(allRooms, newRoom)
-						} else if jre.MatchString(m) == true {
-							res := jre.FindStringSubmatch(m)
+						} else if joinRoomReg.MatchString(mesg) == true {
+							res := joinRoomReg.FindStringSubmatch(mesg)
 							exists := false
 							for _, r := range allRooms {
 								if r.GetName() == res[1] {
@@ -85,7 +85,7 @@ func main() {
 								conn.Write([]byte("Room " + res[1] + " doesn't exist!"))
 							}
 
-						} else if allre.MatchString(m) == true {
+						} else if allRoomsReg.MatchString(mesg) == true {
 							var buffer bytes.Buffer
 							for _, r := range allRooms {
 								buffer.WriteString(r.GetName() + " owned by " + r.GetOwner().Name + "\n")
@@ -94,12 +94,12 @@ func main() {
 						}
 					} else if allClients[conn].Room != nil && allClients[conn].RoomOwner {
 						startGameReg := regexp.MustCompile(`#START_GAME`)
-						if startGameReg.MatchString(m) == true {
+						if startGameReg.MatchString(mesg) == true {
 							allClients[conn].StartGame()
 							//TODO
 						}
 					}
-					messages <- Mesg{fmt.Sprintln("\n", allClients[conn].Name, " : ", m),
+					messages <- Mesg{fmt.Sprintln("\n", allClients[conn].Name, " : ", mesg),
 						allClients[conn].Room}
 				}
 				deadConnections <- conn
