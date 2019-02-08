@@ -49,10 +49,12 @@ func (pl *Player) Blame(blamee *Player) {
 
 // This method can be invoked only if
 // the current object is the owner of the room
-func (pl *Player) StartGame() {
+func (pl *Player) StartGame() bool {
 	if pl.RoomOwner == true && len(pl.Room.players) >= 6 {
 		pl.Room.StartGame()
+		return true
 	}
+	return false
 }
 
 func (pl *Player) ResetRound() {

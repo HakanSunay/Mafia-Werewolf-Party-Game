@@ -95,8 +95,12 @@ func main() {
 					} else if allClients[conn].Room != nil && allClients[conn].RoomOwner {
 						startGameReg := regexp.MustCompile(`#START_GAME`)
 						if startGameReg.MatchString(mesg) == true {
-							allClients[conn].StartGame()
-							//TODO
+							outcome := allClients[conn].StartGame()
+							if outcome {
+
+							} else {
+								conn.Write([]byte("Room can't be created!"))
+							}
 						}
 					}
 					messages <- Mesg{fmt.Sprintln("\n", allClients[conn].Name, " : ", mesg),

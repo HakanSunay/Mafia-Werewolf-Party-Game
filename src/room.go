@@ -10,6 +10,7 @@ type Room struct {
 	name    string
 	players []*Player
 	playing bool
+	stage   int
 }
 
 func (r Room) String() string {
@@ -17,7 +18,7 @@ func (r Room) String() string {
 }
 
 func CreateRoom(name string, player *Player) *Room {
-	resultRoom := &Room{name, nil, false}
+	resultRoom := &Room{name, nil, false, 0}
 	newPlayers := make([]*Player, 0)
 	newPlayers = append(newPlayers, player)
 	resultRoom.players = newPlayers
@@ -63,9 +64,10 @@ func RandomJob(curRoles *map[Role]uint) Role {
 
 func (r *Room) StartGame() {
 	r.playing = true
+	r.stage = 1
 }
 
-func (r* Room) IsPlaying() bool {
+func (r *Room) IsPlaying() bool {
 	return r.playing
 }
 
@@ -115,4 +117,12 @@ func (r *Room) SetName(name string) {
 
 func (r *Room) GetName() string {
 	return r.name
+}
+
+func (r *Room) GetStage() int {
+	return r.stage
+}
+
+func (r *Room) NextStage() {
+	r.stage++
 }
