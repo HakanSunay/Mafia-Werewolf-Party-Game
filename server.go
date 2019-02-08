@@ -72,6 +72,8 @@ func main() {
 							newRoom.SetName(res[1])
 							newRoom.AddPlayer(allClients[conn])
 							allRooms = append(allRooms, newRoom)
+							conn.Write([]byte("You have successfully created room " + res[1]))
+							continue
 						} else if joinRoomReg.MatchString(mesg) == true {
 							res := joinRoomReg.FindStringSubmatch(mesg)
 							exists := false
@@ -79,28 +81,39 @@ func main() {
 								if r.GetName() == res[1] {
 									exists = true
 									r.AddPlayer(allClients[conn])
+									conn.Write([]byte("You have successfully joined room " + r.GetName()))
+									messages <- Mesg{fmt.Sprintln("\n",allClients[conn].Name,
+										" joined ", r.GetName()),
+										allClients[conn].Room}
 								}
 							}
 							if exists == false {
 								conn.Write([]byte("Room " + res[1] + " doesn't exist!"))
 							}
+							continue
 
 						} else if allRoomsReg.MatchString(mesg) == true {
 							var buffer bytes.Buffer
 							for _, r := range allRooms {
 								buffer.WriteString(r.GetName() + " owned by " + r.GetOwner().Name + "\n")
 							}
-							conn.Write([]byte("The currently available rooms are: \n" + buffer.String()))
+							if buffer.Len() == 0 {
+								conn.Write([]byte("There are no rooms available!\n"))
+							} else {
+								conn.Write([]byte("The currently available rooms are: \n" + buffer.String()))
+							}
+							continue
 						}
 					} else if allClients[conn].Room != nil && allClients[conn].RoomOwner {
 						startGameReg := regexp.MustCompile(`#START_GAME`)
 						if startGameReg.MatchString(mesg) == true {
 							outcome := allClients[conn].StartGame()
 							if outcome {
-
+								conn.Write([]byte("Game started!"))
 							} else {
 								conn.Write([]byte("Room can't be created!"))
 							}
+							continue
 						}
 					}
 					messages <- Mesg{fmt.Sprintln("\n", allClients[conn].Name, " : ", mesg),
@@ -110,12 +123,15 @@ func main() {
 			}(curCon)
 		case msg := <-messages:
 			for conn, client := range allClients {
-				if msg.room == client.Room && msg.room != nil {
+				if msg.room != nil && msg.room == client.Room && !(msg.room.IsPlaying()) {
 					conn.Write([]byte(msg.content))
 				} else if msg.room == nil && client.Room == nil {
 					conn.Write([]byte(msg.content))
-				} else if msg.room.IsPlaying() {
+				} else if msg.room != nil && msg.room == client.Room && msg.room.IsPlaying() {
 					//TODO
+					// if MAFIA stage
+					// else if DOCTOR stage
+					// else if ALL STAGE
 				}
 			}
 		case lostClient := <-deadConnections:
