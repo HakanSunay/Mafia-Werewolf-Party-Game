@@ -51,9 +51,9 @@ func TestRoom_AddPlayer2(t *testing.T) {
 func TestRoom_Reset(t *testing.T) {
 	room := Room{}
 	players := [6]Player{}
-	for _, pl := range players {
-		pl.Invulnerable = true
-		room.AddPlayer(&pl)
+	for index, _ := range players {
+		players[index].Invulnerable = true
+		room.AddPlayer(&players[index])
 	}
 	room.Reset()
 	for _, pl := range players {
