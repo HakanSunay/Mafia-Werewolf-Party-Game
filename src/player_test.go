@@ -42,7 +42,7 @@ func TestPlayer_ResetRound(t *testing.T) {
 	}
 	for _, pl := range players {
 		pl.ResetRound()
-		if pl.Votes != 0 {
+		if pl.Votes != 0 || pl.Voted != false {
 			t.Error("Reset round not working!")
 		}
 	}

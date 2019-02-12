@@ -43,7 +43,7 @@ func main() {
 				}
 				allClients[conn] = &src.Player{false, nil, src.ClientCount,
 					string(nameByte[:readBytes-1]), src.RandomJob(&currentRoles),
-					false, 0, false}
+					false, 0, false, false}
 				newConnections <- conn
 				messages <- Mesg{fmt.Sprintln(allClients[conn].Name, " joined the room!"),
 					nil}

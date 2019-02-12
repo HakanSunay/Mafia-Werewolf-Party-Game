@@ -20,6 +20,7 @@ type Player struct {
 	Invulnerable bool
 	Votes        uint
 	Dead         bool
+	Voted 		 bool
 }
 
 /*func (pl Player) String() string {
@@ -60,6 +61,7 @@ func (pl *Player) StartGame() bool {
 func (pl *Player) ResetRound() {
 	pl.Invulnerable = false
 	pl.Votes = 0
+	pl.Voted = false
 }
 
 func (pl *Player) SetVotes(score uint){
@@ -67,9 +69,12 @@ func (pl *Player) SetVotes(score uint){
 }
 
 func (pl *Player) CastVote(votedPlayerName string){
-	votedPlayer := pl.Room.FindPlayer(votedPlayerName)
-	if votedPlayer != nil {
-		votedPlayer.IncrementVote()
+	if pl.Voted == false {
+		votedPlayer := pl.Room.FindPlayer(votedPlayerName)
+		if votedPlayer != nil {
+			votedPlayer.IncrementVote()
+			pl.Voted = true
+		}
 	}
 }
 
