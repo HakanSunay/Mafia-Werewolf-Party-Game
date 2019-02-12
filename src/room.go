@@ -70,7 +70,7 @@ func RandomJob(curRoles *map[Role]uint) Role {
 
 func (r *Room) StartGame() {
 	r.playing = true
-	r.stage = 1
+	r.stage = 0
 }
 
 func (r *Room) IsPlaying() bool {
@@ -130,13 +130,17 @@ func (r *Room) GetStage() int {
 }
 
 func (r *Room) NextStage() {
-	r.stage++
-	r.stage%=3
+	if (r.stage == MAFIASTAGE && r.CheckIfMafiaVoted()) ||
+		(r.stage == ALLSTAGE && r.CheckIfAllVoted()) ||
+		(r.stage == DOCTORSTAGE && r.CheckIfDoctorSaved()){
+		r.stage++
+		r.stage %= 3
+	}
 }
 
-func (r* Room) GetMostVotedPlayer() *Player{
+func (r *Room) GetMostVotedPlayer() *Player {
 	maxVotedPlayer := r.players[0]
-	for _, pl := range r.players{
+	for _, pl := range r.players {
 		if pl.Votes > maxVotedPlayer.Votes {
 			maxVotedPlayer = pl
 		}
@@ -144,18 +148,26 @@ func (r* Room) GetMostVotedPlayer() *Player{
 	return maxVotedPlayer
 }
 
-func (r* Room) CheckIfAllVoted() bool {
+func (r *Room) CheckIfAllVoted() bool {
 	for _, pl := range r.players {
-		if pl.Voted == false {
+		if r.stage == ALLSTAGE && pl.Voted == false {
 			return false
 		}
 	}
 	return true
 }
 
-func (r* Room) CheckIfMafiaVoted() bool {
+func (r *Room) CheckIfMafiaVoted() bool {
 	for _, pl := range r.players {
-		if pl.Job == MAFIA && pl.Voted == false {
+		if pl.Job == MAFIA && r.stage == MAFIASTAGE && pl.Voted == false {
+			return false
+		}
+	}
+	return true
+}
+func (r *Room) CheckIfDoctorSaved() bool {
+	for _, pl := range r.players {
+		if pl.Job == DOCTOR && r.stage == DOCTORSTAGE && pl.Voted == false {
 			return false
 		}
 	}

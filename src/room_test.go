@@ -90,6 +90,7 @@ func TestRoom_CheckIfAllVoted(t *testing.T) {
 	room := Room{}
 	players := [6]Player{}
 	players[0].Name = "BadBoy"
+	room.stage = ALLSTAGE
 	for index, _ := range players {
 		room.AddPlayer(&players[index])
 		players[index].CastVote(players[0].Name)
@@ -103,6 +104,7 @@ func TestRoom_CheckIfMafiaVoted(t *testing.T) {
 	room := Room{}
 	players := [6]Player{}
 	players[0].Name = "BadBoy"
+	room.stage = MAFIASTAGE
 	for index, _ := range players {
 		room.AddPlayer(&players[index])
 		if index % 2 == 0{
