@@ -143,3 +143,21 @@ func (r* Room) GetMostVotedPlayer() *Player{
 	}
 	return maxVotedPlayer
 }
+
+func (r* Room) CheckIfAllVoted() bool {
+	for _, pl := range r.players {
+		if pl.Voted == false {
+			return false
+		}
+	}
+	return true
+}
+
+func (r* Room) CheckIfMafiaVoted() bool {
+	for _, pl := range r.players {
+		if pl.Job == MAFIA && pl.Voted == false {
+			return false
+		}
+	}
+	return true
+}

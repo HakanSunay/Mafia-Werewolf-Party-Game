@@ -85,3 +85,32 @@ func TestRoom_GetMostVotedPlayer(t *testing.T) {
 		t.Error("GetMostVotedPlayer not working!")
 	}
 }
+
+func TestRoom_CheckIfAllVoted(t *testing.T) {
+	room := Room{}
+	players := [6]Player{}
+	players[0].Name = "BadBoy"
+	for index, _ := range players {
+		room.AddPlayer(&players[index])
+		players[index].CastVote(players[0].Name)
+	}
+	if room.CheckIfAllVoted() == false {
+		t.Error("Check if all voted not working!")
+	}
+}
+
+func TestRoom_CheckIfMafiaVoted(t *testing.T) {
+	room := Room{}
+	players := [6]Player{}
+	players[0].Name = "BadBoy"
+	for index, _ := range players {
+		room.AddPlayer(&players[index])
+		if index % 2 == 0{
+			players[index].Job = MAFIA
+			players[index].CastVote(players[0].Name)
+		}
+	}
+	if room.CheckIfMafiaVoted() == false {
+		t.Error("Check if MAFIA voted not working!")
+	}
+}
