@@ -21,7 +21,7 @@ func main() {
 		log.Println(err.Error())
 	}
 	allRooms := make([]*src.Room, 0)
-	currentRoles := make(map[src.Role]uint)
+	// currentRoles := make(map[src.Role]uint)
 	allClients := make(map[net.Conn]*src.Player)
 	newConnections := make(chan net.Conn)
 	deadConnections := make(chan net.Conn)
@@ -42,7 +42,7 @@ func main() {
 					log.Println(err.Error())
 				}
 				allClients[conn] = &src.Player{false, nil, src.ClientCount,
-					string(nameByte[:readBytes-1]), src.RandomJob(&currentRoles),
+					string(nameByte[:readBytes-1]), src.CITIZEN,
 					false, 0, false, false}
 				newConnections <- conn
 				messages <- Mesg{fmt.Sprintln(allClients[conn].Name, " joined the room!"),

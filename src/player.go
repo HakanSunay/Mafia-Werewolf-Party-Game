@@ -1,14 +1,13 @@
 package src
 
-const ROLECOUNT = 4
+const ROLECOUNT = 3
 
 type Role int
 
 const (
-	CITIZEN Role = iota
-	MAFIA
+	MAFIA Role = iota
 	DOCTOR
-	SHERIFF
+	CITIZEN
 )
 
 type Player struct {

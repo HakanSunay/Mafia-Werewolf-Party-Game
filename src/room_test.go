@@ -116,3 +116,30 @@ func TestRoom_CheckIfMafiaVoted(t *testing.T) {
 		t.Error("Check if MAFIA voted not working!")
 	}
 }
+
+func TestRoom_StartGame(t *testing.T) {
+	gameRoom := Room{}
+	players := [6]Player{}
+	for index,_ := range players{
+		gameRoom.AddPlayer(&players[index])
+	}
+	gameRoom.StartGame()
+	var doctorSeen, mafiaSeen, citizenSeen bool
+	for _, pl := range gameRoom.players {
+		if doctorSeen && mafiaSeen && citizenSeen {
+			break
+		} else if pl.Job == MAFIA {
+			mafiaSeen = true
+		} else if pl.Job == DOCTOR {
+			doctorSeen = true
+		} else if pl.Job == CITIZEN {
+			citizenSeen = true
+		}
+	}
+	if !(doctorSeen && mafiaSeen && citizenSeen) {
+		t.Error("Job Randomizer Fault!")
+	}
+	if !(gameRoom.playing && gameRoom.stage == MAFIASTAGE){
+		t.Error("Start Game Error!")
+	}
+}

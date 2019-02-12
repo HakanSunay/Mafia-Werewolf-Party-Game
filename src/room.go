@@ -43,32 +43,21 @@ var (
 	citizenCount uint = 0
 	mafiaCount   uint = 0
 	doctorCount  uint = 0
-	sheriffCount uint = 0
 	ClientCount  uint = 0
 )
 
-// Generates a random role for the players in the room
-func RandomJob(curRoles *map[Role]uint) Role {
-	rand.Seed(time.Now().UnixNano())
-	if ClientCount < 4 {
-		choice := rand.Intn(ROLECOUNT)
-		return Role(choice)
-	} else if doctorCount == 0 {
-		doctorCount += 1
-		return DOCTOR
-	} else if sheriffCount == 0 {
-		sheriffCount += 1
-		return SHERIFF
-	} else if citizenCount < mafiaCount {
-		citizenCount += 1
-		return CITIZEN
-	} else {
-		mafiaCount += 1
-		return MAFIA
-	}
-}
-
 func (r *Room) StartGame() {
+	rand.Seed(time.Now().UnixNano())
+	amountOfPlayers := len(r.players)
+	doctorChoice := rand.Intn(amountOfPlayers)
+	r.players[doctorChoice].Job = DOCTOR
+	for index, _ := range r.players {
+			if index % 2 == 0 && r.players[index].Job != DOCTOR {
+				r.players[index].Job = MAFIA
+			} else if r.players[index].Job != DOCTOR {
+				r.players[index].Job = CITIZEN
+			}
+	}
 	r.playing = true
 	r.stage = 0
 }
