@@ -84,5 +84,4 @@ func TestRoom_GetMostVotedPlayer(t *testing.T) {
 	if room.GetMostVotedPlayer() != room.players[5]{
 		t.Error("GetMostVotedPlayer not working!")
 	}
-
 }

@@ -48,3 +48,16 @@ func TestPlayer_ResetRound(t *testing.T) {
 	}
 
 }
+
+func TestPlayer_CastVote(t *testing.T) {
+	room := Room{}
+	player1 := Player{}
+	votedPl := Player{}
+	votedPl.Name = "BadBoy"
+	room.AddPlayer(&player1)
+	room.AddPlayer(&votedPl)
+	player1.CastVote(votedPl.Name)
+	if votedPl.Votes != 1 {
+		t.Error("Cast vote not working!")
+	}
+}

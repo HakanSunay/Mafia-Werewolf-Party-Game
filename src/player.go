@@ -65,3 +65,14 @@ func (pl *Player) ResetRound() {
 func (pl *Player) SetVotes(score uint){
 	pl.Votes = score
 }
+
+func (pl *Player) CastVote(votedPlayerName string){
+	votedPlayer := pl.Room.FindPlayer(votedPlayerName)
+	if votedPlayer != nil {
+		votedPlayer.IncrementVote()
+	}
+}
+
+func (pl *Player) IncrementVote(){
+	pl.Votes+=1
+}
