@@ -57,6 +57,7 @@ func main() {
 		case curCon := <-newConnections:
 			src.ClientCount += 1
 			go func(conn net.Conn) {
+				// TODO: Read only if the curCon.ROOM.stage == curCon.ROLE
 				rd := bufio.NewReader(conn)
 				for {
 					mesg, err := rd.ReadString('\n')
@@ -116,7 +117,7 @@ func main() {
 							} else {
 								conn.Write([]byte("Room can't be created!"))
 							}
-							continue
+							mesg = "Mafiozos, the game has begun! Show no mercy!"
 						}
 					} else if allClients[conn].Room.IsPlaying() {
 						curRoom := allClients[conn].Room
@@ -168,10 +169,14 @@ func main() {
 					if currentStage == src.MAFIASTAGE {
 						if client.Job == src.MAFIA {
 							conn.Write([]byte(msg.content))
+						} else {
+							conn.Write([]byte("Keep on sleeping honey!"))
 						}
 					} else if currentStage == src.DOCTORSTAGE {
 						if client.Job == src.DOCTOR {
 							conn.Write([]byte(msg.content))
+						} else {
+							conn.Write([]byte("Keep on sleeping honey!"))
 						}
 					} else if currentStage == src.ALLSTAGE {
 						conn.Write([]byte(msg.content))
