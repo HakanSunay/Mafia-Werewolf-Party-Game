@@ -35,6 +35,19 @@ func TestRoom_AddPlayerBecomesRoomOwner(t *testing.T) {
 	}
 }
 
+func TestRoom_AddPlayer2(t *testing.T) {
+	room := Room{}
+	player1 := Player{}
+	player2 := Player{}
+	player1.Name = "Player1"
+	player2.Name = "Player2"
+	room.AddPlayer(&player1)
+	room.AddPlayer(&player2)
+	if room.players[0].Name == room.players[1].Name {
+		t.Error("Adding multiple players doesn't work!")
+	}
+}
+
 func TestRoom_Reset(t *testing.T) {
 	room := Room{}
 	players := [6]Player{}
@@ -57,4 +70,19 @@ func TestRoom_GetOwner(t *testing.T) {
 	if room.GetOwner() != &player {
 		t.Error("GetOwner not working!")
 	}
+}
+
+func TestRoom_GetMostVotedPlayer(t *testing.T) {
+	room := Room{}
+	players := [6]Player{}
+	var num uint = 0
+	for index, _ := range players {
+		players[index].SetVotes(num)
+		num += 1
+		room.AddPlayer(&players[index])
+	}
+	if room.GetMostVotedPlayer() != room.players[5]{
+		t.Error("GetMostVotedPlayer not working!")
+	}
+
 }

@@ -133,3 +133,13 @@ func (r *Room) NextStage() {
 	r.stage++
 	r.stage%=3
 }
+
+func (r* Room) GetMostVotedPlayer() *Player{
+	maxVotedPlayer := r.players[0]
+	for _, pl := range r.players{
+		if pl.Votes > maxVotedPlayer.Votes {
+			maxVotedPlayer = pl
+		}
+	}
+	return maxVotedPlayer
+}

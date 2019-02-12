@@ -131,11 +131,15 @@ func main() {
 					// TODO
 					currentStage := msg.room.GetStage()
 					if currentStage == src.MAFIASTAGE {
-
+						if client.Job == src.MAFIA {
+							conn.Write([]byte(msg.content))
+						}
 					} else if currentStage == src.DOCTORSTAGE {
-
+						if client.Job == src.DOCTOR{
+							conn.Write([]byte(msg.content))
+						}
 					} else if currentStage == src.ALLSTAGE {
-
+						conn.Write([]byte(msg.content))
 					}
 					// msg.room.NextStage()
 				}

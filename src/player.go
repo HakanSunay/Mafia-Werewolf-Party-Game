@@ -61,3 +61,7 @@ func (pl *Player) ResetRound() {
 	pl.Invulnerable = false
 	pl.Votes = 0
 }
+
+func (pl *Player) SetVotes(score uint){
+	pl.Votes = score
+}
