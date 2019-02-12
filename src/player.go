@@ -29,12 +29,16 @@ type Player struct {
 // This method is invoked when a player of type DOCTOR
 // decides to use his special ability on us
 func (pl *Player) Save() {
-	pl.Invulnerable = true
+	if pl.Dead == false {
+		pl.Invulnerable = true
+	}
 }
 
 // Kill the current player
 func (pl *Player) Die() {
-	pl.Dead = true
+	if pl.Invulnerable == false {
+		pl.Dead = true
+	}
 }
 
 func (pl *Player) CreateRoom(roomName string) *Room {
@@ -68,7 +72,7 @@ func (pl *Player) SetVotes(score uint){
 }
 
 func (pl *Player) CastVote(votedPlayerName string){
-	if pl.Voted == false {
+	if pl.Voted == false && pl.Dead == false {
 		votedPlayer := pl.Room.FindPlayer(votedPlayerName)
 		if votedPlayer != nil {
 			votedPlayer.IncrementVote()

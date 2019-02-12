@@ -35,6 +35,7 @@ func main() {
 			}
 			// src.clientCount += 1
 			conn.Write([]byte("Tell me your name, babe!"))
+			// TODO: Make sure names are unique
 			nameByte := make([]byte, 1024)
 			go func() {
 				readBytes, err := conn.Read(nameByte)
@@ -104,7 +105,9 @@ func main() {
 							}
 							continue
 						}
-					} else if allClients[conn].Room != nil && allClients[conn].RoomOwner {
+					} else if allClients[conn].Room != nil &&
+						!(allClients[conn].Room.IsPlaying()) &&
+						allClients[conn].RoomOwner {
 						startGameReg := regexp.MustCompile(`#START_GAME`)
 						if startGameReg.MatchString(mesg) == true {
 							outcome := allClients[conn].StartGame()
@@ -114,6 +117,39 @@ func main() {
 								conn.Write([]byte("Room can't be created!"))
 							}
 							continue
+						}
+					} else if allClients[conn].Room.IsPlaying() {
+						curRoom := allClients[conn].Room
+						curStage := curRoom.GetStage()
+						if outcome:= curRoom.NextStage(); outcome {
+							hotSeatPlayer := curRoom.GetMostVotedPlayer()
+							switch curStage {
+							case src.MAFIASTAGE:
+								hotSeatPlayer.Die()
+							case src.DOCTORSTAGE:
+								hotSeatPlayer.Save()
+							case src.ALLSTAGE:
+								hotSeatPlayer.Die()
+							}
+							curRoom.Reset()
+							if curRoom.GetStage() == src.MAFIASTAGE {
+								messages <- Mesg{"MAFIA, IT IS TIME TO MURDER SOMEBODY!",
+								curRoom}
+							} else if curRoom.GetStage() == src.DOCTORSTAGE {
+								messages <- Mesg{"DOC, SAVE A POOR OR CORRUPT SOUL!",
+									curRoom}
+							} else {
+								messages <- Mesg{"DEAR GOTOWN, IT IS TIME TO FIND THE MURDERER!",
+									curRoom}
+							}
+						} else {
+							voteReg := regexp.MustCompile(`#VOTE (\w+)`)
+							if voteReg.MatchString(mesg) == true {
+								votedPlayerName := voteReg.FindStringSubmatch(mesg)[1]
+								// TODO : check if the name is correct
+								votedPlayer := curRoom.FindPlayer(votedPlayerName)
+								votedPlayer.IncrementVote()
+							}
 						}
 					}
 					messages <- Mesg{fmt.Sprintln("\n", allClients[conn].Name, " : ", mesg),
@@ -128,20 +164,18 @@ func main() {
 				} else if msg.room == nil && client.Room == nil {
 					conn.Write([]byte(msg.content))
 				} else if msg.room != nil && msg.room == client.Room && msg.room.IsPlaying() {
-					// TODO
 					currentStage := msg.room.GetStage()
 					if currentStage == src.MAFIASTAGE {
 						if client.Job == src.MAFIA {
 							conn.Write([]byte(msg.content))
 						}
 					} else if currentStage == src.DOCTORSTAGE {
-						if client.Job == src.DOCTOR{
+						if client.Job == src.DOCTOR {
 							conn.Write([]byte(msg.content))
 						}
 					} else if currentStage == src.ALLSTAGE {
 						conn.Write([]byte(msg.content))
 					}
-					// msg.room.NextStage()
 				}
 			}
 		case lostClient := <-deadConnections:

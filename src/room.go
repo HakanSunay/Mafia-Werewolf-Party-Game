@@ -118,13 +118,15 @@ func (r *Room) GetStage() int {
 	return r.stage
 }
 
-func (r *Room) NextStage() {
+func (r *Room) NextStage() bool {
 	if (r.stage == MAFIASTAGE && r.CheckIfMafiaVoted()) ||
 		(r.stage == ALLSTAGE && r.CheckIfAllVoted()) ||
 		(r.stage == DOCTORSTAGE && r.CheckIfDoctorSaved()){
 		r.stage++
 		r.stage %= 3
+		return true
 	}
+	return false
 }
 
 func (r *Room) GetMostVotedPlayer() *Player {
