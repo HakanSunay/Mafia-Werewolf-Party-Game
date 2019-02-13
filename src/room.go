@@ -118,15 +118,20 @@ func (r *Room) GetStage() int {
 	return r.stage
 }
 
-func (r *Room) NextStage() bool {
+func (r *Room) CanGoToNextStage() bool {
 	if (r.stage == MAFIASTAGE && r.CheckIfMafiaVoted()) ||
 		(r.stage == ALLSTAGE && r.CheckIfAllVoted()) ||
-		(r.stage == DOCTORSTAGE && r.CheckIfDoctorSaved()) {
-		r.stage++
-		r.stage %= 3
+		(r.stage == DOCTORSTAGE && (r.CheckIfDoctorSaved() || !(r.HasDoctor()))){
 		return true
 	}
 	return false
+}
+
+func (r *Room) NextStage() {
+	if r.CanGoToNextStage() {
+		r.stage++
+		r.stage %= 3
+	}
 }
 
 func (r *Room) GetMostVotedPlayer() *Player {
@@ -141,7 +146,7 @@ func (r *Room) GetMostVotedPlayer() *Player {
 
 func (r *Room) CheckIfAllVoted() bool {
 	for _, pl := range r.players {
-		if r.stage == ALLSTAGE && pl.Voted == false {
+		if r.stage == ALLSTAGE && pl.Voted == false && pl.Dead == false {
 			return false
 		}
 	}
@@ -150,7 +155,7 @@ func (r *Room) CheckIfAllVoted() bool {
 
 func (r *Room) CheckIfMafiaVoted() bool {
 	for _, pl := range r.players {
-		if pl.Job == MAFIA && r.stage == MAFIASTAGE && pl.Voted == false {
+		if pl.Dead == false && pl.Job == MAFIA && r.stage == MAFIASTAGE && pl.Voted == false {
 			return false
 		}
 	}
@@ -174,4 +179,13 @@ func (r *Room) FindChosenPlayerToDie() *Player {
 		}
 	}
 	return nil
+}
+
+func (r *Room) HasDoctor() bool {
+	for _, pl := range r.players {
+		if pl.Job == DOCTOR && pl.Dead == false {
+			return true
+		}
+	}
+	return false
 }

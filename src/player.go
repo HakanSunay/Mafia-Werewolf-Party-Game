@@ -83,3 +83,22 @@ func (pl *Player) CastVote(votedPlayerName string) {
 func (pl *Player) IncrementVote() {
 	pl.Votes += 1
 }
+
+func (pl *Player) IsEligibleToChat() bool {
+	if pl.Room != nil{
+		if pl.Room.playing {
+			if pl.Dead == true {
+				return false
+			} else if pl.Room.stage == ALLSTAGE {
+				return true
+			} else if pl.Job == MAFIA && pl.Room.stage == MAFIASTAGE {
+				return true
+			} else if pl.Job == DOCTOR && pl.Room.stage == DOCTORSTAGE {
+				return true
+			} else {
+				return false
+			}
+		}
+	}
+	return true
+}

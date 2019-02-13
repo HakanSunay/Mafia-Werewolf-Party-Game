@@ -57,11 +57,14 @@ func main() {
 		case curCon := <-newConnections:
 			src.ClientCount += 1
 			go func(conn net.Conn) {
-				// TODO: Read only if the conn.ROOM.stage == conn.ROLE
+				// TODO: IsEligible should block chat
 				rd := bufio.NewReader(conn)
 				for {
 					curPlayer := allClients[conn]
 					curRoom := allClients[conn].Room
+					if !(curPlayer.IsEligibleToChat()) {
+						continue
+					}
 					mesg, err := rd.ReadString('\n')
 					if err != nil {
 						break
@@ -124,53 +127,90 @@ func main() {
 							continue
 						}
 					} else if curRoom.IsPlaying() {
+						// swapped this
 						// TODO: this part must be at the beginning!
-						curStage := curRoom.GetStage()
-						if outcome := curRoom.NextStage(); outcome == true {
-							hotSeatPlayer := curRoom.GetMostVotedPlayer()
-							fmt.Println("HotSeatPlayer is ", hotSeatPlayer.Name)
-							switch curStage {
-							case src.MAFIASTAGE:
-								hotSeatPlayer.AssignChosen()
-							case src.DOCTORSTAGE:
-								hotSeatPlayer.Save()
-							case src.ALLSTAGE:
-								hotSeatPlayer.Die()
-							}
-							curRoom.Reset()
-							if curRoom.GetStage() == src.MAFIASTAGE {
-								messages <- Mesg{"MAFIA, IT IS TIME TO MURDER SOMEBODY!",
-									curRoom}
-							} else if curRoom.GetStage() == src.DOCTORSTAGE {
-								messages <- Mesg{"DOC, SAVE A POOR OR A CORRUPT SOUL!",
-									curRoom}
+						voteReg := regexp.MustCompile(`#VOTE (\w+)`)
+						getPlayersReg := regexp.MustCompile(`#PLAYERS`)
+						if voteReg.MatchString(mesg) == true {
+							matchRes := voteReg.FindStringSubmatch(mesg)
+							votedPlayerName := matchRes[1]
+							if curPlayer.Job != src.DOCTOR {
+								fmt.Println(curPlayer.Name, " wants to kick ", matchRes[1])
 							} else {
-								deadPlayer := curRoom.FindChosenPlayerToDie()
-								var announcement string
-								if deadPlayer != nil {
-									announcement = "GoTown! Our dear friend " + deadPlayer.Name +
-										" has fallen into the hands of the mighty mafia last night!"
-								} else {
-									announcement = "GoTown! Our doctor did a great job last night!"
-								}
-								messages <- Mesg{announcement,
-									curRoom}
-								continue
+								fmt.Println(curPlayer.Name, " wants to save ", matchRes[1])
 							}
-						} else {
-							voteReg := regexp.MustCompile(`#VOTE (\w+)`)
-							if voteReg.MatchString(mesg) == true {
-								matchRes := voteReg.FindStringSubmatch(mesg)
-								votedPlayerName := matchRes[1]
-								if curPlayer.Job != src.DOCTOR {
-									fmt.Println(curPlayer.Name, " wants to kick ", matchRes[1])
-								} else {
-									fmt.Println(curPlayer.Name, " wants to save ", matchRes[1])
+							// TODO : check if the name is correct
+							curPlayer.CastVote(votedPlayerName)
+
+							// Check if Next Stage is possible
+							curStage := curRoom.GetStage()
+							if curRoom.CanGoToNextStage() {
+								hotSeatPlayer := curRoom.GetMostVotedPlayer()
+								fmt.Println("HotSeatPlayer is ", hotSeatPlayer.Name)
+								switch curStage {
+									case src.MAFIASTAGE:
+										hotSeatPlayer.AssignChosen()
+									case src.DOCTORSTAGE:
+										if curRoom.HasDoctor(){
+											hotSeatPlayer.Save()
+										}
+									case src.ALLSTAGE:
+										hotSeatPlayer.Die()
+										messages <- Mesg{"Go town has decided to imprison " +
+											hotSeatPlayer.Name + "\n",curRoom}
 								}
-								// TODO : check if the name is correct
-								curPlayer.CastVote(votedPlayerName)
-								// no continue here, so that other players can see our VOTES!
+								curRoom.NextStage()
+								curRoom.Reset()
+								if curRoom.GetStage() == src.MAFIASTAGE {
+									messages <- Mesg{"MAFIA, IT IS TIME TO MURDER SOMEBODY!\n",
+										curRoom}
+									continue
+								} else if curRoom.GetStage() == src.DOCTORSTAGE {
+									if curRoom.HasDoctor(){
+										messages <- Mesg{"DOC, SAVE A POOR OR A CORRUPT SOUL!\n",
+											curRoom}
+									} else {
+										// added this else clause !!!!
+										curRoom.NextStage()
+										curRoom.Reset()
+										deadWithoutDoctor := curRoom.FindChosenPlayerToDie()
+										var announcement2 string
+										if deadWithoutDoctor != nil {
+											announcement2 = "GoTown! Our dear friend " + deadWithoutDoctor.Name +
+												" has fallen into the hands of the mighty mafia last night!\n"
+										}
+										messages <- Mesg{announcement2,
+											curRoom}
+										continue
+									}
+								} else {
+									deadPlayer := curRoom.FindChosenPlayerToDie()
+									var announcement string
+									if deadPlayer != nil {
+										announcement = "GoTown! Our dear friend " + deadPlayer.Name +
+											" has fallen into the hands of the mighty mafia last night!\n"
+									} else {
+										announcement = "GoTown! Our doctor did a great job last night!\n"
+									}
+									messages <- Mesg{announcement,
+										curRoom}
+									continue
+								}
 							}
+							// no continue here, so that other players can see our VOTES!
+						} else if getPlayersReg.MatchString(mesg) == true {
+							var playersBuffer bytes.Buffer
+							for _, pl := range curRoom.GetPlayers() {
+								if pl.Dead == false{
+									playersBuffer.WriteString(pl.Name + "\n")
+								}
+							}
+							if playersBuffer.Len() == 0 {
+								conn.Write([]byte("There are no players available!\n"))
+							} else {
+								conn.Write([]byte("The current players are: \n" + playersBuffer.String()))
+							}
+							continue
 						}
 					}
 					messages <- Mesg{fmt.Sprintln("\n", curPlayer.Name, " : ", mesg),
@@ -186,17 +226,15 @@ func main() {
 					conn.Write([]byte(msg.content))
 				} else if msg.room != nil && msg.room == client.Room && msg.room.IsPlaying() {
 					currentStage := msg.room.GetStage()
-					if currentStage == src.MAFIASTAGE {
+					if client.Dead {
+						conn.Write([]byte(msg.content))
+					} else if currentStage == src.MAFIASTAGE {
 						if client.Job == src.MAFIA {
 							conn.Write([]byte(msg.content))
-						} else {
-							conn.Write([]byte("Keep on sleeping honey!"))
 						}
 					} else if currentStage == src.DOCTORSTAGE {
 						if client.Job == src.DOCTOR {
 							conn.Write([]byte(msg.content))
-						} else {
-							conn.Write([]byte("Keep on sleeping honey!"))
 						}
 					} else if currentStage == src.ALLSTAGE {
 						conn.Write([]byte(msg.content))
