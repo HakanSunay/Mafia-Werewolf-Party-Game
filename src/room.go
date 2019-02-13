@@ -189,3 +189,22 @@ func (r *Room) HasDoctor() bool {
 	}
 	return false
 }
+
+func (r* Room) GameOver() (bool, Role) {
+	aliveMafia := 0
+	aliveCitizensDocs := 0
+	for _, pl := range r.players{
+		if pl.Job == MAFIA && pl.Dead == false{
+			aliveMafia++
+		} else if (pl.Job == CITIZEN || pl.Job == DOCTOR) && pl.Dead == false{
+			aliveCitizensDocs++
+		}
+	}
+	if aliveMafia == 0 {
+		return true, CITIZEN
+	} else if aliveCitizensDocs <= 1 && aliveMafia >= 1{
+		return true, MAFIA
+	} else {
+		return false, 0
+	}
+}

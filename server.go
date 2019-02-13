@@ -127,8 +127,11 @@ func main() {
 							continue
 						}
 					} else if curRoom.IsPlaying() {
+						// main logic
 						// swapped this
 						// TODO: this part must be at the beginning!
+						//if res, winner := curRoom.GameOver(); res {
+						//}
 						voteReg := regexp.MustCompile(`#VOTE (\w+)`)
 						getPlayersReg := regexp.MustCompile(`#PLAYERS`)
 						if voteReg.MatchString(mesg) == true {
