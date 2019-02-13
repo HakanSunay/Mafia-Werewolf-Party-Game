@@ -11,15 +11,15 @@ const (
 )
 
 type Player struct {
-	RoomOwner    bool
-	Room         *Room
-	Number       uint
-	Name         string
-	Job          Role
-	Invulnerable bool
-	Votes        uint
-	Dead         bool
-	Voted 		 bool
+	RoomOwner bool
+	Room      *Room
+	Number    uint
+	Name      string
+	Job       Role
+	Votes     uint
+	Dead      bool
+	Voted     bool
+	Chosen    bool
 }
 
 /*func (pl Player) String() string {
@@ -30,14 +30,20 @@ type Player struct {
 // decides to use his special ability on us
 func (pl *Player) Save() {
 	if pl.Dead == false {
-		pl.Invulnerable = true
+		pl.Chosen = false
 	}
 }
 
 // Kill the current player
 func (pl *Player) Die() {
-	if pl.Invulnerable == false {
+	if pl.Dead == false {
 		pl.Dead = true
+	}
+}
+
+func (pl *Player) AssignChosen() {
+	if pl.Dead == false {
+		pl.Chosen = true
 	}
 }
 
@@ -45,16 +51,10 @@ func (pl *Player) CreateRoom(roomName string) *Room {
 	return CreateRoom(roomName, pl)
 }
 
-// Blames another player using their name as a parameter
-// aka votes to send him to prison
-func (pl *Player) Blame(blamee *Player) {
-	blamee.Votes++
-}
-
 // This method can be invoked only if
 // the current object is the owner of the room
 func (pl *Player) StartGame() bool {
-	if pl.RoomOwner == true && len(pl.Room.players) >= 6 {
+	if pl.RoomOwner == true && len(pl.Room.players) >= 4 {
 		pl.Room.StartGame()
 		return true
 	}
@@ -62,16 +62,15 @@ func (pl *Player) StartGame() bool {
 }
 
 func (pl *Player) ResetRound() {
-	pl.Invulnerable = false
 	pl.Votes = 0
 	pl.Voted = false
 }
 
-func (pl *Player) SetVotes(score uint){
+func (pl *Player) SetVotes(score uint) {
 	pl.Votes = score
 }
 
-func (pl *Player) CastVote(votedPlayerName string){
+func (pl *Player) CastVote(votedPlayerName string) {
 	if pl.Voted == false && pl.Dead == false {
 		votedPlayer := pl.Room.FindPlayer(votedPlayerName)
 		if votedPlayer != nil {
@@ -81,6 +80,6 @@ func (pl *Player) CastVote(votedPlayerName string){
 	}
 }
 
-func (pl *Player) IncrementVote(){
-	pl.Votes+=1
+func (pl *Player) IncrementVote() {
+	pl.Votes += 1
 }

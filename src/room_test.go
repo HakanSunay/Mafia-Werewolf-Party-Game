@@ -81,7 +81,7 @@ func TestRoom_GetMostVotedPlayer(t *testing.T) {
 		num += 1
 		room.AddPlayer(&players[index])
 	}
-	if room.GetMostVotedPlayer() != room.players[5]{
+	if room.GetMostVotedPlayer() != room.players[5] {
 		t.Error("GetMostVotedPlayer not working!")
 	}
 }
@@ -107,7 +107,7 @@ func TestRoom_CheckIfMafiaVoted(t *testing.T) {
 	room.stage = MAFIASTAGE
 	for index, _ := range players {
 		room.AddPlayer(&players[index])
-		if index % 2 == 0{
+		if index%2 == 0 {
 			players[index].Job = MAFIA
 			players[index].CastVote(players[0].Name)
 		}
@@ -120,7 +120,7 @@ func TestRoom_CheckIfMafiaVoted(t *testing.T) {
 func TestRoom_StartGame(t *testing.T) {
 	gameRoom := Room{}
 	players := [6]Player{}
-	for index,_ := range players{
+	for index, _ := range players {
 		gameRoom.AddPlayer(&players[index])
 	}
 	gameRoom.StartGame()
@@ -139,7 +139,7 @@ func TestRoom_StartGame(t *testing.T) {
 	if !(doctorSeen && mafiaSeen && citizenSeen) {
 		t.Error("Job Randomizer Fault!")
 	}
-	if !(gameRoom.playing && gameRoom.stage == MAFIASTAGE){
+	if !(gameRoom.playing && gameRoom.stage == MAFIASTAGE) {
 		t.Error("Start Game Error!")
 	}
 }

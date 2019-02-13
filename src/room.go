@@ -52,11 +52,11 @@ func (r *Room) StartGame() {
 	doctorChoice := rand.Intn(amountOfPlayers)
 	r.players[doctorChoice].Job = DOCTOR
 	for index, _ := range r.players {
-			if index % 2 == 0 && r.players[index].Job != DOCTOR {
-				r.players[index].Job = MAFIA
-			} else if r.players[index].Job != DOCTOR {
-				r.players[index].Job = CITIZEN
-			}
+		if index%2 == 0 && r.players[index].Job != DOCTOR {
+			r.players[index].Job = MAFIA
+		} else if r.players[index].Job != DOCTOR {
+			r.players[index].Job = CITIZEN
+		}
 	}
 	r.playing = true
 	r.stage = 0
@@ -121,7 +121,7 @@ func (r *Room) GetStage() int {
 func (r *Room) NextStage() bool {
 	if (r.stage == MAFIASTAGE && r.CheckIfMafiaVoted()) ||
 		(r.stage == ALLSTAGE && r.CheckIfAllVoted()) ||
-		(r.stage == DOCTORSTAGE && r.CheckIfDoctorSaved()){
+		(r.stage == DOCTORSTAGE && r.CheckIfDoctorSaved()) {
 		r.stage++
 		r.stage %= 3
 		return true
@@ -156,6 +156,7 @@ func (r *Room) CheckIfMafiaVoted() bool {
 	}
 	return true
 }
+
 func (r *Room) CheckIfDoctorSaved() bool {
 	for _, pl := range r.players {
 		if pl.Job == DOCTOR && r.stage == DOCTORSTAGE && pl.Voted == false {
@@ -163,4 +164,14 @@ func (r *Room) CheckIfDoctorSaved() bool {
 		}
 	}
 	return true
+}
+
+func (r *Room) FindChosenPlayerToDie() *Player {
+	for index, _ := range r.players {
+		if r.players[index].Dead == false && r.players[index].Chosen == true {
+			r.players[index].Dead = true
+			return r.players[index]
+		}
+	}
+	return nil
 }

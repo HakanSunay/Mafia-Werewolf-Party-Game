@@ -44,7 +44,7 @@ func main() {
 				}
 				allClients[conn] = &src.Player{false, nil, src.ClientCount,
 					string(nameByte[:readBytes-1]), src.CITIZEN,
-					false, 0, false, false}
+					0, false, false, false}
 				newConnections <- conn
 				messages <- Mesg{fmt.Sprintln(allClients[conn].Name, " joined the room!"),
 					nil}
@@ -57,14 +57,16 @@ func main() {
 		case curCon := <-newConnections:
 			src.ClientCount += 1
 			go func(conn net.Conn) {
-				// TODO: Read only if the curCon.ROOM.stage == curCon.ROLE
+				// TODO: Read only if the conn.ROOM.stage == conn.ROLE
 				rd := bufio.NewReader(conn)
 				for {
+					curPlayer := allClients[conn]
+					curRoom := allClients[conn].Room
 					mesg, err := rd.ReadString('\n')
 					if err != nil {
 						break
 					}
-					if allClients[conn].Room == nil {
+					if curRoom == nil {
 						joinRoomReg := regexp.MustCompile(`#JOIN_ROOM (\w+)`)
 						createRoomReg := regexp.MustCompile(`#CREATE_ROOM (?P<RoomName>\w+)`)
 						allRoomsReg := regexp.MustCompile(`#ROOMS`)
@@ -72,7 +74,7 @@ func main() {
 							res := createRoomReg.FindStringSubmatch(mesg)
 							newRoom := &src.Room{}
 							newRoom.SetName(res[1])
-							newRoom.AddPlayer(allClients[conn])
+							newRoom.AddPlayer(curPlayer)
 							allRooms = append(allRooms, newRoom)
 							conn.Write([]byte("You have successfully created room " + res[1]))
 							continue
@@ -82,11 +84,11 @@ func main() {
 							for _, r := range allRooms {
 								if r.GetName() == res[1] {
 									exists = true
-									r.AddPlayer(allClients[conn])
+									r.AddPlayer(curPlayer)
 									conn.Write([]byte("You have successfully joined room " + r.GetName()))
-									messages <- Mesg{fmt.Sprintln("\n",allClients[conn].Name,
+									messages <- Mesg{fmt.Sprintln("\n", curPlayer.Name,
 										" joined ", r.GetName()),
-										allClients[conn].Room}
+										r}
 								}
 							}
 							if exists == false {
@@ -106,27 +108,30 @@ func main() {
 							}
 							continue
 						}
-					} else if allClients[conn].Room != nil &&
-						!(allClients[conn].Room.IsPlaying()) &&
-						allClients[conn].RoomOwner {
+					} else if curRoom != nil &&
+						!(curRoom.IsPlaying()) &&
+						curPlayer.RoomOwner {
 						startGameReg := regexp.MustCompile(`#START_GAME`)
 						if startGameReg.MatchString(mesg) == true {
-							outcome := allClients[conn].StartGame()
+							outcome := curPlayer.StartGame()
 							if outcome {
 								conn.Write([]byte("Game started!"))
+								messages <- Mesg{"Mafiozos, the game has begun! Show no mercy!",
+									allClients[conn].Room}
 							} else {
-								conn.Write([]byte("Room can't be created!"))
+								conn.Write([]byte("Room can't be started!"))
 							}
-							mesg = "Mafiozos, the game has begun! Show no mercy!"
+							continue
 						}
-					} else if allClients[conn].Room.IsPlaying() {
-						curRoom := allClients[conn].Room
+					} else if curRoom.IsPlaying() {
+						// TODO: this part must be at the beginning!
 						curStage := curRoom.GetStage()
-						if outcome:= curRoom.NextStage(); outcome {
+						if outcome := curRoom.NextStage(); outcome == true {
 							hotSeatPlayer := curRoom.GetMostVotedPlayer()
+							fmt.Println("HotSeatPlayer is ", hotSeatPlayer.Name)
 							switch curStage {
 							case src.MAFIASTAGE:
-								hotSeatPlayer.Die()
+								hotSeatPlayer.AssignChosen()
 							case src.DOCTORSTAGE:
 								hotSeatPlayer.Save()
 							case src.ALLSTAGE:
@@ -135,26 +140,41 @@ func main() {
 							curRoom.Reset()
 							if curRoom.GetStage() == src.MAFIASTAGE {
 								messages <- Mesg{"MAFIA, IT IS TIME TO MURDER SOMEBODY!",
-								curRoom}
+									curRoom}
 							} else if curRoom.GetStage() == src.DOCTORSTAGE {
-								messages <- Mesg{"DOC, SAVE A POOR OR CORRUPT SOUL!",
+								messages <- Mesg{"DOC, SAVE A POOR OR A CORRUPT SOUL!",
 									curRoom}
 							} else {
-								messages <- Mesg{"DEAR GOTOWN, IT IS TIME TO FIND THE MURDERER!",
+								deadPlayer := curRoom.FindChosenPlayerToDie()
+								var announcement string
+								if deadPlayer != nil {
+									announcement = "GoTown! Our dear friend " + deadPlayer.Name +
+										" has fallen into the hands of the mighty mafia last night!"
+								} else {
+									announcement = "GoTown! Our doctor did a great job last night!"
+								}
+								messages <- Mesg{announcement,
 									curRoom}
+								continue
 							}
 						} else {
 							voteReg := regexp.MustCompile(`#VOTE (\w+)`)
 							if voteReg.MatchString(mesg) == true {
-								votedPlayerName := voteReg.FindStringSubmatch(mesg)[1]
+								matchRes := voteReg.FindStringSubmatch(mesg)
+								votedPlayerName := matchRes[1]
+								if curPlayer.Job != src.DOCTOR {
+									fmt.Println(curPlayer.Name, " wants to kick ", matchRes[1])
+								} else {
+									fmt.Println(curPlayer.Name, " wants to save ", matchRes[1])
+								}
 								// TODO : check if the name is correct
-								votedPlayer := curRoom.FindPlayer(votedPlayerName)
-								votedPlayer.IncrementVote()
+								curPlayer.CastVote(votedPlayerName)
+								// no continue here, so that other players can see our VOTES!
 							}
 						}
 					}
-					messages <- Mesg{fmt.Sprintln("\n", allClients[conn].Name, " : ", mesg),
-						allClients[conn].Room}
+					messages <- Mesg{fmt.Sprintln("\n", curPlayer.Name, " : ", mesg),
+						curRoom}
 				}
 				deadConnections <- conn
 			}(curCon)
