@@ -152,7 +152,7 @@ func TestFindRoom(t *testing.T) {
 		rooms[index].name = strconv.Itoa(index)
 	}
 	roomsLice := rooms[:]
-	if roomsLice[5].name != FindRoom(&roomsLice, "5").name{
+	if roomsLice[5].name != FindRoom(&roomsLice, "5").name {
 		t.Error("Finding rooms doesn't work!")
 	}
 }
@@ -164,12 +164,12 @@ func TestRoom_CanGoToNextStage(t *testing.T) {
 	for index, _ := range players {
 		gameRoom.AddPlayer(&players[index])
 	}
-	for index, _ := range gameRoom.players{
+	for index, _ := range gameRoom.players {
 		if gameRoom.players[index].Job == MAFIA {
 			gameRoom.players[index].CastVote("BadBoy")
 		}
 	}
-	if !(gameRoom.CanGoToNextStage()){
+	if !(gameRoom.CanGoToNextStage()) {
 		t.Error("Can go to next stage doesn't work!")
 	}
 }
@@ -181,7 +181,7 @@ func TestRoom_CheckIfDoctorSaved(t *testing.T) {
 	for index, _ := range players {
 		gameRoom.AddPlayer(&players[index])
 	}
-	for index, _ := range gameRoom.players{
+	for index, _ := range gameRoom.players {
 		if gameRoom.players[index].Job == DOCTOR {
 			gameRoom.players[index].CastVote("BadBoy")
 		}
@@ -200,7 +200,7 @@ func TestRoom_End(t *testing.T) {
 	}
 	players[0].Job = DOCTOR
 	gameRoom.End()
-	if players[0].Job == DOCTOR{
+	if players[0].Job == DOCTOR {
 		t.Error("End doesn't work!")
 	}
 }
@@ -239,12 +239,12 @@ func TestRoom_GameOver(t *testing.T) {
 	for index, _ := range players {
 		gameRoom.AddPlayer(&players[index])
 	}
-	for index, _ := range gameRoom.players{
+	for index, _ := range gameRoom.players {
 		if gameRoom.players[index].Job == MAFIA {
 			gameRoom.players[index].Dead = true
 		}
 	}
-	if res, winner := gameRoom.GameOver(); res{
+	if res, winner := gameRoom.GameOver(); res {
 		if winner != CITIZEN {
 			t.Error("GameOver not working!")
 		}
@@ -254,7 +254,7 @@ func TestRoom_GameOver(t *testing.T) {
 func TestRoom_GetName(t *testing.T) {
 	gameRoom := &Room{}
 	gameRoom.name = "GoTown"
-	if gameRoom.GetName() != gameRoom.name{
+	if gameRoom.GetName() != gameRoom.name {
 		t.Error("GetName doesn't work!")
 	}
 }
@@ -287,7 +287,7 @@ func TestRoom_HasDoctor(t *testing.T) {
 	for index, _ := range players {
 		gameRoom.AddPlayer(&players[index])
 	}
-	if !(gameRoom.HasDoctor()){
+	if !(gameRoom.HasDoctor()) {
 		t.Error("HasDoctor doesn't work!")
 	}
 }
@@ -295,7 +295,7 @@ func TestRoom_HasDoctor(t *testing.T) {
 func TestRoom_IsPlaying(t *testing.T) {
 	gameRoom := &Room{}
 	gameRoom.playing = true
-	if !(gameRoom.IsPlaying()){
+	if !(gameRoom.IsPlaying()) {
 		t.Error("IsPlaying doesn't work!")
 	}
 }
@@ -307,7 +307,7 @@ func TestRoom_NextStage(t *testing.T) {
 	for index, _ := range players {
 		gameRoom.AddPlayer(&players[index])
 	}
-	for index, _ := range gameRoom.players{
+	for index, _ := range gameRoom.players {
 		if gameRoom.players[index].Job == MAFIA {
 			gameRoom.players[index].CastVote("BadBoy")
 		}

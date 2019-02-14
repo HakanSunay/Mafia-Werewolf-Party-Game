@@ -22,10 +22,6 @@ type Player struct {
 	Chosen    bool
 }
 
-/*func (pl Player) String() string {
-	return fmt.Sprintf("Name: %v and Job: %v", pl.Name, pl.Job)
-}*/
-
 // This method is invoked when a player of type DOCTOR
 // decides to use his special ability on us
 func (pl *Player) Save() {
@@ -85,7 +81,7 @@ func (pl *Player) IncrementVote() {
 }
 
 func (pl *Player) IsEligibleToChat() bool {
-	if pl.Room != nil{
+	if pl.Room != nil {
 		if pl.Room.playing {
 			if pl.Dead == true {
 				return false

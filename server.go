@@ -41,7 +41,7 @@ func main() {
 					log.Println(err.Error())
 				}
 				name := string(nameByte[:readBytes-1])
-				for !isValidName(name, allClients){
+				for !isValidName(name, allClients) {
 					conn.Write([]byte(name + " is taken, please choose another name!"))
 					readBytes, err := conn.Read(nameByte)
 					if err != nil {
@@ -108,9 +108,9 @@ func main() {
 							var buffer bytes.Buffer
 							var info string
 							for _, r := range allRooms {
-								if r != nil{
+								if r != nil {
 									info = r.GetName() + " owned by " + r.GetOwner().Name + "\n"
-									if r.IsPlaying(){
+									if r.IsPlaying() {
 										info = "PLAYING: " + info
 									} else {
 										info = "LOBBY: " + info
@@ -130,7 +130,7 @@ func main() {
 						if startGameReg.MatchString(mesg) == true {
 							outcome := curPlayer.StartGame()
 							if outcome {
-								messages <- Mesg{"", curRoom,true}
+								messages <- Mesg{"", curRoom, true}
 								messages <- Mesg{"The game has begun!\nMAFIA TIME!\n", curRoom, true}
 							} else {
 								conn.Write([]byte("Room can't be started!\n"))
@@ -150,19 +150,19 @@ func main() {
 							if curRoom.CanGoToNextStage() {
 								hotSeatPlayer := curRoom.GetMostVotedPlayer()
 								switch curStage {
-									case src.MAFIASTAGE:
-										hotSeatPlayer.AssignChosen()
-									case src.DOCTORSTAGE:
-										if curRoom.HasDoctor(){
-											hotSeatPlayer.Save()
-										}
-									case src.ALLSTAGE:
-										hotSeatPlayer.Die()
-										messages <- Mesg{"Go town has decided to imprison " +
-											hotSeatPlayer.Name + "\n",curRoom, false}
+								case src.MAFIASTAGE:
+									hotSeatPlayer.AssignChosen()
+								case src.DOCTORSTAGE:
+									if curRoom.HasDoctor() {
+										hotSeatPlayer.Save()
+									}
+								case src.ALLSTAGE:
+									hotSeatPlayer.Die()
+									messages <- Mesg{"Go town has decided to imprison " +
+										hotSeatPlayer.Name + "\n", curRoom, false}
 								}
 								curRoom.NextStage()
-								if res, winner := curRoom.GameOver(); res{
+								if res, winner := curRoom.GameOver(); res {
 									if winner == src.MAFIA {
 										messages <- Mesg{"The MAFIA HAVE WON!\n", curRoom, true}
 									} else if winner == src.CITIZEN {
@@ -180,7 +180,7 @@ func main() {
 										curRoom, false}
 									continue
 								} else if curRoom.GetStage() == src.DOCTORSTAGE {
-									if curRoom.HasDoctor(){
+									if curRoom.HasDoctor() {
 										messages <- Mesg{"DOCTOR TIME!", curRoom, true}
 										messages <- Mesg{"DOC, SAVE A POOR OR A CORRUPT SOUL!\n",
 											curRoom, false}
@@ -216,7 +216,7 @@ func main() {
 						} else if getPlayersReg.MatchString(mesg) == true {
 							var playersBuffer bytes.Buffer
 							for _, pl := range curRoom.GetPlayers() {
-								if pl.Dead == false{
+								if pl.Dead == false {
 									playersBuffer.WriteString(pl.Name + "\n")
 								}
 							}
@@ -241,7 +241,7 @@ func main() {
 					conn.Write([]byte(msg.content))
 				} else if msg.room != nil && msg.room == client.Room && msg.room.IsPlaying() {
 					currentStage := msg.room.GetStage()
-					if msg.special{
+					if msg.special {
 						if len(msg.content) == 0 {
 							curJob := client.Job
 							var roleDescription string
@@ -276,7 +276,7 @@ func main() {
 			gonePlayer := allClients[lostClient]
 			go func(playerName string) {
 				messages <- Mesg{fmt.Sprintln("\n", playerName, " left"),
-				gonePlayer.Room, true}
+					gonePlayer.Room, true}
 			}(gonePlayer.Name)
 			delete(allClients, lostClient)
 		}
@@ -284,7 +284,7 @@ func main() {
 }
 
 func findIndex(room *src.Room, rooms []*src.Room) int {
-	for index, v := range rooms{
+	for index, v := range rooms {
 		if v == room {
 			return index
 		}
@@ -293,11 +293,10 @@ func findIndex(room *src.Room, rooms []*src.Room) int {
 }
 
 func isValidName(s string, players map[net.Conn]*src.Player) bool {
-	for _, pl := range players{
-		if s == pl.Name{
+	for _, pl := range players {
+		if s == pl.Name {
 			return false
 		}
 	}
 	return true
 }
-

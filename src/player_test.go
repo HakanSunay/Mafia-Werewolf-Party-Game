@@ -51,7 +51,7 @@ func TestPlayer_CastVote(t *testing.T) {
 
 func TestPlayer_AssignChosen(t *testing.T) {
 	coolPlayer := &Player{}
-	if coolPlayer.AssignChosen(); !(coolPlayer.Chosen){
+	if coolPlayer.AssignChosen(); !(coolPlayer.Chosen) {
 		t.Error("AssignChosen doesn't work!")
 	}
 }
@@ -59,14 +59,14 @@ func TestPlayer_AssignChosen(t *testing.T) {
 func TestPlayer_End(t *testing.T) {
 	coolPlayer := &Player{}
 	coolPlayer.Job = DOCTOR
-	if coolPlayer.End(); coolPlayer.Job != CITIZEN{
+	if coolPlayer.End(); coolPlayer.Job != CITIZEN {
 		t.Error("End for player doesn't work!")
 	}
 }
 
 func TestPlayer_IncrementVote(t *testing.T) {
 	coolPlayer := &Player{}
-	if coolPlayer.IncrementVote(); coolPlayer.Votes != 1{
+	if coolPlayer.IncrementVote(); coolPlayer.Votes != 1 {
 		t.Error("IncrementVote for player doesn't work!")
 	}
 }
@@ -75,7 +75,7 @@ func TestPlayer_IsEligibleToChat(t *testing.T) {
 	coolPlayer := &Player{}
 	coolRoom := &Room{}
 	coolPlayer.Room = coolRoom
-	if coolPlayer.Job = MAFIA; !(coolPlayer.IsEligibleToChat()){
+	if coolPlayer.Job = MAFIA; !(coolPlayer.IsEligibleToChat()) {
 		t.Error("Is eligible to chat doesn't work!")
 	}
 }
@@ -95,7 +95,7 @@ func TestPlayer_StartGame(t *testing.T) {
 	for index, _ := range players {
 		coolRoom.AddPlayer(&players[index])
 	}
-	if !(coolPlayer.StartGame()){
+	if !(coolPlayer.StartGame()) {
 		t.Error("StartGame for player as room owner doesn't work!")
 	}
 }
