@@ -1,6 +1,7 @@
 package src
 
 import (
+	"strconv"
 	"testing"
 )
 
@@ -52,12 +53,12 @@ func TestRoom_Reset(t *testing.T) {
 	room := Room{}
 	players := [6]Player{}
 	for index, _ := range players {
-		players[index].Invulnerable = true
+		players[index].Voted = true
 		room.AddPlayer(&players[index])
 	}
 	room.Reset()
 	for _, pl := range players {
-		if pl.Invulnerable == true {
+		if pl.Voted == true {
 			t.Error("Reset not working!")
 		}
 	}
@@ -107,6 +108,7 @@ func TestRoom_CheckIfMafiaVoted(t *testing.T) {
 	room.stage = MAFIASTAGE
 	for index, _ := range players {
 		room.AddPlayer(&players[index])
+		players[index].Job = CITIZEN
 		if index%2 == 0 {
 			players[index].Job = MAFIA
 			players[index].CastVote(players[0].Name)
@@ -141,5 +143,184 @@ func TestRoom_StartGame(t *testing.T) {
 	}
 	if !(gameRoom.playing && gameRoom.stage == MAFIASTAGE) {
 		t.Error("Start Game Error!")
+	}
+}
+
+func TestFindRoom(t *testing.T) {
+	rooms := [6]Room{}
+	for index, _ := range rooms {
+		rooms[index].name = strconv.Itoa(index)
+	}
+	roomsLice := rooms[:]
+	if roomsLice[5].name != FindRoom(&roomsLice, "5").name{
+		t.Error("Finding rooms doesn't work!")
+	}
+}
+
+func TestRoom_CanGoToNextStage(t *testing.T) {
+	gameRoom := Room{}
+	players := [6]Player{}
+	players[0].Name = "BadBoy"
+	for index, _ := range players {
+		gameRoom.AddPlayer(&players[index])
+	}
+	for index, _ := range gameRoom.players{
+		if gameRoom.players[index].Job == MAFIA {
+			gameRoom.players[index].CastVote("BadBoy")
+		}
+	}
+	if !(gameRoom.CanGoToNextStage()){
+		t.Error("Can go to next stage doesn't work!")
+	}
+}
+
+func TestRoom_CheckIfDoctorSaved(t *testing.T) {
+	gameRoom := Room{}
+	players := [6]Player{}
+	players[0].Name = "BadBoy"
+	for index, _ := range players {
+		gameRoom.AddPlayer(&players[index])
+	}
+	for index, _ := range gameRoom.players{
+		if gameRoom.players[index].Job == DOCTOR {
+			gameRoom.players[index].CastVote("BadBoy")
+		}
+	}
+	if !(gameRoom.CheckIfDoctorSaved()) {
+		t.Error("CheckIfDoctor Saved doesn't work!")
+	}
+}
+
+func TestRoom_End(t *testing.T) {
+	gameRoom := &Room{}
+	players := [6]Player{}
+	players[0].Name = "BadBoy"
+	for index, _ := range players {
+		gameRoom.AddPlayer(&players[index])
+	}
+	players[0].Job = DOCTOR
+	gameRoom.End()
+	if players[0].Job == DOCTOR{
+		t.Error("End doesn't work!")
+	}
+}
+
+func TestRoom_FindChosenPlayerToDie(t *testing.T) {
+	gameRoom := &Room{}
+	players := [6]Player{}
+	players[0].Name = "BadBoy"
+	players[0].Chosen = true
+	for index, _ := range players {
+		gameRoom.AddPlayer(&players[index])
+	}
+	chosenPlayer := gameRoom.FindChosenPlayerToDie()
+	if chosenPlayer != &players[0] {
+		t.Error("Find chosen player doesn't work!")
+	}
+}
+
+func TestRoom_FindPlayer(t *testing.T) {
+	gameRoom := &Room{}
+	players := [6]Player{}
+	players[0].Name = "BadBoy"
+	for index, _ := range players {
+		gameRoom.AddPlayer(&players[index])
+	}
+	chosenPlayer := gameRoom.FindPlayer("BadBoy")
+	if chosenPlayer != &players[0] {
+		t.Error("Find player doesn't work!")
+	}
+}
+
+func TestRoom_GameOver(t *testing.T) {
+	gameRoom := &Room{}
+	players := [6]Player{}
+	players[0].Name = "BadBoy"
+	for index, _ := range players {
+		gameRoom.AddPlayer(&players[index])
+	}
+	for index, _ := range gameRoom.players{
+		if gameRoom.players[index].Job == MAFIA {
+			gameRoom.players[index].Dead = true
+		}
+	}
+	if res, winner := gameRoom.GameOver(); res{
+		if winner != CITIZEN {
+			t.Error("GameOver not working!")
+		}
+	}
+}
+
+func TestRoom_GetName(t *testing.T) {
+	gameRoom := &Room{}
+	gameRoom.name = "GoTown"
+	if gameRoom.GetName() != gameRoom.name{
+		t.Error("GetName doesn't work!")
+	}
+}
+
+func TestRoom_GetPlayers(t *testing.T) {
+	gameRoom := &Room{}
+	players := [6]Player{}
+	players[0].Name = "BadBoy"
+	players[0].Chosen = true
+	for index, _ := range players {
+		gameRoom.AddPlayer(&players[index])
+	}
+	if players[0].Name != gameRoom.GetPlayers()[0].Name {
+		t.Error("GetPlayers doesn't work!")
+	}
+}
+
+func TestRoom_GetStage(t *testing.T) {
+	gameRoom := &Room{}
+	if gameRoom.GetStage() != MAFIASTAGE {
+		t.Error("GetStage doesn't work!")
+	}
+}
+
+func TestRoom_HasDoctor(t *testing.T) {
+	gameRoom := &Room{}
+	players := [6]Player{}
+	players[0].Name = "BadBoy"
+	players[0].Job = DOCTOR
+	for index, _ := range players {
+		gameRoom.AddPlayer(&players[index])
+	}
+	if !(gameRoom.HasDoctor()){
+		t.Error("HasDoctor doesn't work!")
+	}
+}
+
+func TestRoom_IsPlaying(t *testing.T) {
+	gameRoom := &Room{}
+	gameRoom.playing = true
+	if !(gameRoom.IsPlaying()){
+		t.Error("IsPlaying doesn't work!")
+	}
+}
+
+func TestRoom_NextStage(t *testing.T) {
+	gameRoom := &Room{}
+	players := [6]Player{}
+	players[0].Name = "BadBoy"
+	for index, _ := range players {
+		gameRoom.AddPlayer(&players[index])
+	}
+	for index, _ := range gameRoom.players{
+		if gameRoom.players[index].Job == MAFIA {
+			gameRoom.players[index].CastVote("BadBoy")
+		}
+	}
+	if gameRoom.NextStage(); gameRoom.stage != DOCTORSTAGE {
+		t.Error("NextStage not working!")
+	}
+}
+
+func TestRoom_SetName(t *testing.T) {
+	gameRoom := &Room{}
+	gameRoom.SetName("GoTown")
+	if gameRoom.GetName() != gameRoom.name {
+		t.Error("SetName not working!")
 	}
 }
