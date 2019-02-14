@@ -162,7 +162,6 @@ func main() {
 											hotSeatPlayer.Name + "\n",curRoom, false}
 								}
 								curRoom.NextStage()
-								// TODO: find a way to terminate game
 								if res, winner := curRoom.GameOver(); res{
 									if winner == src.MAFIA {
 										messages <- Mesg{"The MAFIA HAVE WON!\n", curRoom, true}
