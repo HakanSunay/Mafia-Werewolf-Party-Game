@@ -10,6 +10,7 @@ const (
 	CITIZEN
 )
 
+//TODO : Comment methods!
 type Player struct {
 	RoomOwner bool
 	Room      *Room

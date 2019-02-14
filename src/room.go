@@ -6,6 +6,7 @@ import (
 	"time"
 )
 
+//TODO : Comment methods!
 type Room struct {
 	name    string
 	players []*Player

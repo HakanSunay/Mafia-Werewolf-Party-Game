@@ -16,6 +16,7 @@ type Mesg struct {
 	special bool
 }
 
+// TODO: Try to create seperate modules
 func main() {
 	ln, err := net.Listen("tcp", "127.0.0.1:8080")
 	if err != nil {
