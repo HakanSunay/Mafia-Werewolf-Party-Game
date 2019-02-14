@@ -107,7 +107,9 @@ func main() {
 						} else if allRoomsReg.MatchString(mesg) == true {
 							var buffer bytes.Buffer
 							for _, r := range allRooms {
-								buffer.WriteString(r.GetName() + " owned by " + r.GetOwner().Name + "\n")
+								if r != nil{
+									buffer.WriteString(r.GetName() + " owned by " + r.GetOwner().Name + "\n")
+								}
 							}
 							if buffer.Len() == 0 {
 								conn.Write([]byte("There are no rooms available!\n"))
@@ -130,7 +132,6 @@ func main() {
 						}
 					} else if curRoom.IsPlaying() {
 						// main logic
-						// TODO: this part must be at the beginning!
 						voteReg := regexp.MustCompile(`#VOTE (\w+)`)
 						getPlayersReg := regexp.MustCompile(`#PLAYERS`)
 						if voteReg.MatchString(mesg) == true {
@@ -167,7 +168,9 @@ func main() {
 									} else if winner == src.CITIZEN {
 										messages <- Mesg{"The CITIZEN HAVE WON!\n", curRoom, true}
 									}
+									indexOfCurRoom := findIndex(curRoom, allRooms)
 									curRoom.End()
+									allRooms = append(allRooms[:indexOfCurRoom], allRooms[indexOfCurRoom+1:]...)
 									continue
 								}
 								curRoom.Reset()
@@ -279,6 +282,16 @@ func main() {
 		}
 	}
 }
+
+func findIndex(room *src.Room, rooms []*src.Room) int {
+	for index, v := range rooms{
+		if v == room {
+			return index
+		}
+	}
+	return -1
+}
+
 func isValidName(s string, players map[net.Conn]*src.Player) bool {
 	for _, pl := range players{
 		if s == pl.Name{

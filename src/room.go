@@ -212,5 +212,6 @@ func (r *Room) End() {
 	for index, _ := range r.players{
 		r.players[index].End()
 	}
+	r.playing = false
 	r = nil
 }
