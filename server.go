@@ -91,7 +91,7 @@ func main() {
 							res := joinRoomReg.FindStringSubmatch(mesg)
 							exists := false
 							for _, r := range allRooms {
-								if r.GetName() == res[1] {
+								if r.GetName() == res[1] && !(r.IsPlaying()) {
 									exists = true
 									r.AddPlayer(curPlayer)
 									conn.Write([]byte("You have successfully joined room " + r.GetName()))
@@ -101,14 +101,21 @@ func main() {
 								}
 							}
 							if exists == false {
-								conn.Write([]byte("Room " + res[1] + " doesn't exist!"))
+								conn.Write([]byte("You can't join NON-EXISTENT/PLAYING Rooms!"))
 							}
 							continue
 						} else if allRoomsReg.MatchString(mesg) == true {
 							var buffer bytes.Buffer
+							var info string
 							for _, r := range allRooms {
 								if r != nil{
-									buffer.WriteString(r.GetName() + " owned by " + r.GetOwner().Name + "\n")
+									info = r.GetName() + " owned by " + r.GetOwner().Name + "\n"
+									if r.IsPlaying(){
+										info = "PLAYING: " + info
+									} else {
+										info = "LOBBY: " + info
+									}
+									buffer.WriteString(info)
 								}
 							}
 							if buffer.Len() == 0 {
@@ -137,12 +144,6 @@ func main() {
 						if voteReg.MatchString(mesg) == true {
 							matchRes := voteReg.FindStringSubmatch(mesg)
 							votedPlayerName := matchRes[1]
-							if curPlayer.Job != src.DOCTOR {
-								fmt.Println(curPlayer.Name, " wants to kick ", matchRes[1])
-							} else {
-								fmt.Println(curPlayer.Name, " wants to save ", matchRes[1])
-							}
-							// TODO : check if the name is correct
 							curPlayer.CastVote(votedPlayerName)
 							curStage := curRoom.GetStage()
 
