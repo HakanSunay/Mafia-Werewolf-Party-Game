@@ -5,7 +5,8 @@
 The Mafia party game presents a conflict between the Mafia – the informed minority – and the Innocents – the uninformed majority. Originated by Dmitry Davidoff of the USSR in 1986, this popular game has many variations and can be played by a group of seven or more people.
 
 The game has two phases; night, when the Mafia might secretly “murder” an innocent, and “day” when Innocents vote to eliminate a Mafiosi suspect. The game ends when either all the Mafia members are eliminated or the Innocents.
-In this implementation Innocents will be referred to as Citizens
+
+In this implementation Innocents will be referred to as Citizens.
 There are also other roles such as:
 * Doctor - has the ability to save 1 person on a random basis.
 
@@ -29,16 +30,16 @@ In order to join the game as a player, you need to run:
 go run client.go
 ```
 ### Gameplay
-0. You will be asked to enter a valid username.
-1. You can now either CREATE or JOIN a ROOM or chat with other players in the Lobby.
-2. Whatever your decision is, the game can only be started by the room creator when a minimum of 6 players gather.
-3. Random hidden roles are assigned to all of the players.
-4. Everyone falls asleep.
-5. The _Mafia_ members wake up, the chat is opened for Mafia members only and they vote to eliminate someone and fall asleep.
-6. The _Doctor_ wakes up, the chat is opened only for him and he is prompted to select a player to save and then he falls asleep as well.
-7. Everybody wakes up, the chat is opened for everyone and they vote to choose the mafia to send to prison.
-8. The chosen suspect is arrested.
-9. Go back to 5, until either one of _Mafia_ / _Innocent_ **Count** becomes 0.
+1. You will be asked to enter a valid username.
+2. You can now either CREATE or JOIN a ROOM or chat with other players in the Lobby.
+3. Whatever your decision is, the game can only be started by the room creator when a minimum of 6 players gather.
+4. Random hidden roles are assigned to all of the players.
+5. Everyone falls asleep.
+6. The _Mafia_ members wake up, the chat is opened for Mafia members only and they vote to eliminate someone and fall asleep.
+7. The _Doctor_ wakes up, the chat is opened only for him and he is prompted to select a player to save and then he falls asleep as well.
+8. Everybody wakes up, the chat is opened for everyone and they vote to choose the mafia to send to prison.
+9. The chosen suspect is arrested.
+10. Go back to 5, until either one of _Mafia_ / _Innocent_ **Count** becomes 0.
 
 #### LOBBY COMMANDS
 * ``#CREATE_ROOM roomName`` - a simple command to create rooms
