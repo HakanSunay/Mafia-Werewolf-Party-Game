@@ -167,6 +167,8 @@ func main() {
 									} else if winner == src.CITIZEN {
 										messages <- Mesg{"The CITIZEN HAVE WON!\n", curRoom, true}
 									}
+									curRoom.End()
+									continue
 								}
 								curRoom.Reset()
 								if curRoom.GetStage() == src.MAFIASTAGE {

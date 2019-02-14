@@ -102,3 +102,12 @@ func (pl *Player) IsEligibleToChat() bool {
 	}
 	return true
 }
+func (pl *Player) End() {
+	pl.RoomOwner = false
+	pl.Job = CITIZEN
+	pl.Dead = false
+	pl.Chosen = false
+	pl.Voted = false
+	pl.Votes = 0
+	pl.Room = nil
+}

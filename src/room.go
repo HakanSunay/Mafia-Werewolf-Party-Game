@@ -208,3 +208,9 @@ func (r* Room) GameOver() (bool, Role) {
 		return false, 0
 	}
 }
+func (r *Room) End() {
+	for index, _ := range r.players{
+		r.players[index].End()
+	}
+	r = nil
+}
