@@ -5,10 +5,9 @@
 The Mafia party game presents a conflict between the Mafia – the informed minority – and the Innocents – the uninformed majority. Originated by Dmitry Davidoff of the USSR in 1986, this popular game has many variations and can be played by a group of seven or more people.
 
 The game has two phases; night, when the Mafia might secretly “murder” an innocent, and “day” when Innocents vote to eliminate a Mafiosi suspect. The game ends when either all the Mafia members are eliminated or the Innocents.
-
+In this implementation Innocents will be referred to as Citizens
 There are also other roles such as:
 * Doctor - has the ability to save 1 person on a random basis.
-* Sheriff - apprehends the Mafioso suspect.
 
 ## Install
 1) Make sure you have **GoLang** installed on your local machine
@@ -22,34 +21,39 @@ go get github.com/HakanSunay/Mafia-Werewolf-Party-Game
 In order to start the game, you will first have to run:
 ```
 # start the server
-go run server.go <port>
+go run server.go
 ```
 In order to join the game as a player, you need to run:
 ```
 # run the client
-go run client.go <hostname> <port>
+go run client.go
 ```
 ### Gameplay
-1. You will be prompted to either CREATE or JOIN a ROOM
+0. You will be asked to enter a valid username.
+1. You can now either CREATE or JOIN a ROOM or chat with other players in the Lobby.
 2. Whatever your decision is, the game can only be started by the room creator when a minimum of 6 players gather.
 3. Random hidden roles are assigned to all of the players.
 4. Everyone falls asleep.
 5. The _Mafia_ members wake up, the chat is opened for Mafia members only and they vote to eliminate someone and fall asleep.
 6. The _Doctor_ wakes up, the chat is opened only for him and he is prompted to select a player to save and then he falls asleep as well.
 7. Everybody wakes up, the chat is opened for everyone and they vote to choose the mafia to send to prison.
-8. The sheriff arrests the chosen suspect.
-9. Go back to 4, until either one of _Mafia_ / _Innocent_ **Count** becomes 0.
+8. The chosen suspect is arrested.
+9. Go back to 5, until either one of _Mafia_ / _Innocent_ **Count** becomes 0.
 
-#### Commands
->\#CREATE_ROOM
+#### LOBBY COMMANDS
+* ``#CREATE_ROOM roomName`` - a simple command to create rooms
 
->\#JOIN_ROOM roomName
+* ``#JOIN_ROOM roomName``- use it to join an existing room, that IS NOT PLAYING
 
->\#ROOMS 
+* ``#ROOMS`` - lists all rooms - in LOBBY and IN-GAME
+#### IN-GAME COMMANDS
+* ``#PLAYERS`` - lists all the players that are alive
+* ``#VOTE playerName`` - this is the main command of the game, the doctor uses it to save possible victims,
+the citizens use it to imprison possible mafiozos and the mafia use it to murder citizens.
 
 ## Possible Future Upgrades
 * Run the server on AWS
-* Connect using the Client using the Server's public IP and Port
+* Play the game using only the client by providing the PUBLIC IP:PORT of the server
 * Implement 2D Game Graphics
 ## Contributing
 If you want to contribute to this repository and fullfil my future plans, you can simply do the following:
