@@ -15,20 +15,13 @@ There are also other roles such as:
 https://golang.org/doc/install
 2) After you successfully install **go**, run the following command:
 ```
-go get github.com/HakanSunay/Mafia-Werewolf-Party-Game
+$ go get github.com/HakanSunay/mafia-game
+```
+## Play
+```
+$ mafia-game
 ```
 
-## Usage
-In order to start the game, you will first have to run:
-```
-# start the server
-go run server.go
-```
-In order to join the game as a player, you need to run:
-```
-# run the client
-go run client.go
-```
 ### Gameplay
 1. You will be asked to enter a valid username.
 2. You can now either CREATE or JOIN a ROOM or chat with other players in the Lobby.
@@ -56,8 +49,7 @@ go run client.go
 the citizens use it to imprison possible mafiozos and the mafia use it to murder citizens.
 
 ## Possible Future Upgrades
-* Run the server on AWS
-* Play the game using only the client by providing the PUBLIC IP:PORT of the server
+* Run the server on AWS (**DONE**)
 * Implement 2D Game Graphics
 ## Contributing
 If you want to contribute to this repository and fullfil my future plans, you can simply do the following:
@@ -69,8 +61,22 @@ $ git clone https://github.com/HakanSunay/Mafia-Werewolf-Party-Game.git
 ```
 $ git checkout -b your_branch_name
 ```
+
 * Bless the branch with your extraordinary genius.
 * Create a pull(/merge) request.
+
+## Usage for development purposes
+
+In order to start the game, you will first have to run:
+```
+# start the server
+go run server.go
+```
+In order to join the game as a player, you need to run:
+```
+# run the client
+go run client.go
+```
 
 ## Bug Reporting
 In case you want to report any bugs and I strongly advise you to do so if you happen to run across any, please do by using the **Issues** section.
