@@ -39,7 +39,10 @@ go run client.go
 7. The _Doctor_ wakes up, the chat is opened only for him and he is prompted to select a player to save and then he falls asleep as well.
 8. Everybody wakes up, the chat is opened for everyone and they vote to choose the mafia to send to prison.
 9. The chosen suspect is arrested.
-10. Go back to 5, until either one of _Mafia_ / _Innocent_ **Count** becomes 0.
+10. Go back to 5, until: 
+* MAFIA members become 0, then CITIZENS win.
+* CITIZENS(incl the DOCTOR) become 1 or less than 1, then MAFIA win.
+* You might find it interesting that when CITIZENS(incl Doctor) and MAFIA both become 1, MAFIA win, this is because MAFIA will just shoot the alive CITIZEN..
 
 #### LOBBY COMMANDS
 * ``#CREATE_ROOM roomName`` - a simple command to create rooms
