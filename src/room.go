@@ -6,7 +6,6 @@ import (
 	"time"
 )
 
-//TODO : Comment methods!
 type Room struct {
 	name    string
 	players []*Player
@@ -24,6 +23,9 @@ func (r Room) String() string {
 	return fmt.Sprintf("The name of the room is %v and the players are %v", r.name, r.players)
 }
 
+// CreateRoom creates a new room, by using the 2 parameters
+// given as arguments. Name becomes the name of the room
+// and the player becomes owner of the room.
 func CreateRoom(name string, player *Player) *Room {
 	resultRoom := &Room{name, nil, false, 0}
 	newPlayers := make([]*Player, 0)
@@ -32,6 +34,9 @@ func CreateRoom(name string, player *Player) *Room {
 	return resultRoom
 }
 
+// AddPlayer is used to add new players to the
+// current room. The player given as parameter
+// becomes the leader of the room if the room is empty.
 func (r *Room) AddPlayer(player *Player) {
 	if len(r.players) == 0 {
 		player.RoomOwner = true
@@ -47,6 +52,10 @@ var (
 	ClientCount  uint = 0
 )
 
+// StartGame is used by owner/leader of the room
+// to initiate the game. The players inside the room
+// are given roles as DOCTOR/CITIZEN/MAFIA on a random basis.
+// The room starts playing and the stage becomes 0 == MAFIASTAGE.
 func (r *Room) StartGame() {
 	rand.Seed(time.Now().UnixNano())
 	amountOfPlayers := len(r.players)
@@ -63,6 +72,7 @@ func (r *Room) StartGame() {
 	r.stage = 0
 }
 
+// IsPlaying checks if the current room is playing.
 func (r *Room) IsPlaying() bool {
 	return r.playing
 }
@@ -94,6 +104,8 @@ func (r *Room) Reset() {
 	}
 }
 
+// GetOwner finds the owner/leader of the room.
+// If there is no leader, returns nil.
 func (r *Room) GetOwner() *Player {
 	for _, pl := range r.players {
 		if pl.RoomOwner == true {
@@ -103,22 +115,31 @@ func (r *Room) GetOwner() *Player {
 	return nil
 }
 
+// GetPlayers is a getter for the players of the room.
 func (r *Room) GetPlayers() []*Player {
 	return r.players
 }
 
+// SetName is used to change the name of the current room.
 func (r *Room) SetName(name string) {
 	r.name = name
 }
 
+// GetName returns the name of the room.
 func (r *Room) GetName() string {
 	return r.name
 }
 
+// GetStage returns the current stage of the room.
 func (r *Room) GetStage() int {
 	return r.stage
 }
 
+// CanGoToNextStage performs a couple of check-ups
+// that are based on the current stage of the room.
+// For example, if the room is at the MAFIASTAGE,
+// in order to advance to the DOCTORSTAGE, all of
+// the Mafia members that are alive should have casted their votes.
 func (r *Room) CanGoToNextStage() bool {
 	if (r.stage == MAFIASTAGE && r.CheckIfMafiaVoted()) ||
 		(r.stage == ALLSTAGE && r.CheckIfAllVoted()) ||
@@ -128,6 +149,7 @@ func (r *Room) CanGoToNextStage() bool {
 	return false
 }
 
+// NextStage changes the current stage of the room.
 func (r *Room) NextStage() {
 	if r.CanGoToNextStage() {
 		r.stage++
@@ -135,6 +157,8 @@ func (r *Room) NextStage() {
 	}
 }
 
+// GetMostVotedPlayer loops through the players
+// of the room and finds the one, who has the most votes.
 func (r *Room) GetMostVotedPlayer() *Player {
 	maxVotedPlayer := r.players[0]
 	for _, pl := range r.players {
@@ -145,6 +169,9 @@ func (r *Room) GetMostVotedPlayer() *Player {
 	return maxVotedPlayer
 }
 
+// CheckIfAllVoted performs a check-up on the players
+// to determine if they have all voted. Keep in mind,
+// this method is used during the ALLSTAGE.
 func (r *Room) CheckIfAllVoted() bool {
 	for _, pl := range r.players {
 		if r.stage == ALLSTAGE && pl.Voted == false && pl.Dead == false {
@@ -154,6 +181,9 @@ func (r *Room) CheckIfAllVoted() bool {
 	return true
 }
 
+// CheckIfMafiaVoted performs a check-up on the MAFIA members
+// to determine if they have all voted. Keep in mind,
+// this method is used during the MAFIASTAGE.
 func (r *Room) CheckIfMafiaVoted() bool {
 	for _, pl := range r.players {
 		if pl.Dead == false && pl.Job == MAFIA && r.stage == MAFIASTAGE && pl.Voted == false {
@@ -163,6 +193,9 @@ func (r *Room) CheckIfMafiaVoted() bool {
 	return true
 }
 
+// CheckIfDoctorSaved performs a check-up
+// to determine if they has voted. Keep in mind,
+// this method is used during the DOCTORSTAGE.
 func (r *Room) CheckIfDoctorSaved() bool {
 	for _, pl := range r.players {
 		if pl.Job == DOCTOR && r.stage == DOCTORSTAGE && pl.Voted == false {
@@ -172,6 +205,9 @@ func (r *Room) CheckIfDoctorSaved() bool {
 	return true
 }
 
+// FindChosenPlayerToDie loops through the alive players in the current
+// room to find out who has been selected to Die or Be Imprisoned.
+// Returns nil, if there is no such player.
 func (r *Room) FindChosenPlayerToDie() *Player {
 	for index, _ := range r.players {
 		if r.players[index].Dead == false && r.players[index].Chosen == true {
@@ -182,6 +218,7 @@ func (r *Room) FindChosenPlayerToDie() *Player {
 	return nil
 }
 
+// HasDoctor is used to check if the DOCTOR of the room is still alive
 func (r *Room) HasDoctor() bool {
 	for _, pl := range r.players {
 		if pl.Job == DOCTOR && pl.Dead == false {
@@ -191,6 +228,11 @@ func (r *Room) HasDoctor() bool {
 	return false
 }
 
+// GameOver determines who has won the game.
+// The main logic here is that, if MAFIA members become 0, CITIZENS win.
+// Otherwise, if CITIZENS(incl the DOCTOR) become 1 or less than 1, MAFIA win.
+// You might find it interesting that when CITIZENS(incl Doctor) and MAFIA
+// both become 1, MAFIA win, this is because MAFIA will just shoot the alive CITIZEN.
 func (r *Room) GameOver() (bool, Role) {
 	aliveMafia := 0
 	aliveCitizensDocs := 0
@@ -209,6 +251,9 @@ func (r *Room) GameOver() (bool, Role) {
 		return false, 0
 	}
 }
+
+// End is used the finish the Game, after either side wins.
+// Every player call its End method, and the current room is discarded.
 func (r *Room) End() {
 	for index, _ := range r.players {
 		r.players[index].End()
