@@ -283,6 +283,8 @@ func main() {
 	}
 }
 
+// findIndex finds the index of the room given as parameter
+// in rooms. If no such room exists, -1 is returned.
 func findIndex(room *src.Room, rooms []*src.Room) int {
 	for index, v := range rooms {
 		if v == room {
@@ -292,6 +294,8 @@ func findIndex(room *src.Room, rooms []*src.Room) int {
 	return -1
 }
 
+// isValidName checks if the string s given as parameter is already
+// in use in by any player in players.
 func isValidName(s string, players map[net.Conn]*src.Player) bool {
 	for _, pl := range players {
 		if s == pl.Name {
