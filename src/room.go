@@ -261,3 +261,22 @@ func (r *Room) End() {
 	r.playing = false
 	r = nil
 }
+
+// KickPlayer is used to remove the given player from the current room.
+func (r* Room) KickPlayer(pl * Player){
+	wasRoomOwner := pl.RoomOwner
+	for index, _ := range r.players{
+		if r.players[index] == pl{
+			if wasRoomOwner{
+				r.players = append(r.players[:index],r.players[(index+1):]...)
+				if len(r.players) != 0 {
+					r.players[index+1].RoomOwner = true
+					return
+				}
+			} else {
+				r.players = append(r.players[:index],r.players[(index+1):]...)
+				return
+			}
+		}
+	}
+}
