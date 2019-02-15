@@ -45,12 +45,7 @@ func (r *Room) AddPlayer(player *Player) {
 	r.players = append(r.players, player)
 }
 
-var (
-	citizenCount uint = 0
-	mafiaCount   uint = 0
-	doctorCount  uint = 0
-	ClientCount  uint = 0
-)
+var ClientCount uint = 0
 
 // StartGame is used by owner/leader of the room
 // to initiate the game. The players inside the room
@@ -61,7 +56,7 @@ func (r *Room) StartGame() {
 	amountOfPlayers := len(r.players)
 	doctorChoice := rand.Intn(amountOfPlayers)
 	r.players[doctorChoice].Job = DOCTOR
-	for index, _ := range r.players {
+	for index := range r.players {
 		if index%2 == 0 && r.players[index].Job != DOCTOR {
 			r.players[index].Job = MAFIA
 		} else if r.players[index].Job != DOCTOR {
@@ -209,7 +204,7 @@ func (r *Room) CheckIfDoctorSaved() bool {
 // room to find out who has been selected to Die or Be Imprisoned.
 // Returns nil, if there is no such player.
 func (r *Room) FindChosenPlayerToDie() *Player {
-	for index, _ := range r.players {
+	for index := range r.players {
 		if r.players[index].Dead == false && r.players[index].Chosen == true {
 			r.players[index].Dead = true
 			return r.players[index]
@@ -255,7 +250,7 @@ func (r *Room) GameOver() (bool, Role) {
 // End is used the finish the Game, after either side wins.
 // Every player call its End method, and the current room is discarded.
 func (r *Room) End() {
-	for index, _ := range r.players {
+	for index := range r.players {
 		r.players[index].End()
 	}
 	r.playing = false
@@ -265,7 +260,7 @@ func (r *Room) End() {
 // KickPlayer is used to remove the given player from the current room.
 func (r *Room) KickPlayer(pl *Player) {
 	wasRoomOwner := pl.RoomOwner
-	for index, _ := range r.players {
+	for index := range r.players {
 		if r.players[index] == pl {
 			r.players[index].Dead = true
 			if wasRoomOwner {
