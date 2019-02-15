@@ -276,6 +276,7 @@ func main() {
 		case lostClient := <-deadConnections:
 			gonePlayer := allClients[lostClient]
 			go func(playerName string) {
+				gonePlayer.Room.KickPlayer(gonePlayer)
 				messages <- Mesg{fmt.Sprintln("\n", playerName, " left"),
 					gonePlayer.Room, true}
 			}(gonePlayer.Name)
