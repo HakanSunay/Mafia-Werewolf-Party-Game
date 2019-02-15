@@ -40,22 +40,23 @@ func main() {
 				readBytes, err := conn.Read(nameByte)
 				if err != nil {
 					log.Println(err.Error())
-				}
-				name := string(nameByte[:readBytes-1])
-				for !isValidName(name, allClients) {
-					conn.Write([]byte(name + " is taken, please choose another name!"))
-					readBytes, err := conn.Read(nameByte)
-					if err != nil {
-						log.Println(err.Error())
+				} else {
+					name := string(nameByte[:readBytes-1])
+					for !isValidName(name, allClients) {
+						conn.Write([]byte(name + " is taken, please choose another name!"))
+						readBytes, err := conn.Read(nameByte)
+						if err != nil {
+							log.Println(err.Error())
+						}
+						name = string(nameByte[:readBytes-1])
 					}
-					name = string(nameByte[:readBytes-1])
+					allClients[conn] = &src.Player{false, nil, src.ClientCount,
+						name, src.CITIZEN,
+						0, false, false, false}
+					newConnections <- conn
+					messages <- Mesg{fmt.Sprintln(allClients[conn].Name, " joined the room!"),
+						nil, false}
 				}
-				allClients[conn] = &src.Player{false, nil, src.ClientCount,
-					name, src.CITIZEN,
-					0, false, false, false}
-				newConnections <- conn
-				messages <- Mesg{fmt.Sprintln(allClients[conn].Name, " joined the room!"),
-					nil, false}
 			}()
 		}
 	}()
