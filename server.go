@@ -1,7 +1,7 @@
 package main
 
 import (
-	"Mafia-Werewolf-Party-Game/src"
+	"github.com/HakanSunay/Mafia-Werewolf-Party-Game/src"
 	"bufio"
 	"bytes"
 	"fmt"
