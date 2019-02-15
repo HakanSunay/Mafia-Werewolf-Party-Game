@@ -329,7 +329,7 @@ func TestRoom_KickPlayer(t *testing.T) {
 	gameRoom := &Room{}
 	players := [6]Player{}
 	players[0].Name = "BadBoy"
-	for index, _ := range players{
+	for index, _ := range players {
 		gameRoom.AddPlayer(&players[index])
 	}
 	if gameRoom.KickPlayer(&players[5]); len(gameRoom.players) != 5 {
@@ -339,14 +339,14 @@ func TestRoom_KickPlayer(t *testing.T) {
 	if gameRoom.GetOwner().Name == "BadBoy" {
 		t.Error("KickPlayer, doesn't assign new owner!")
 	}
-	for i:=0; i<4 ; i++{
+	for i := 0; i < 4; i++ {
 		gameRoom.KickPlayer(gameRoom.players[0])
 	}
 	if len(gameRoom.players) != 0 {
 		t.Error("KickPlayer, for every member must kick everyone!")
 	}
 	gameRoom.AddPlayer(&players[0])
-	if gameRoom.GetOwner() != &players[0]{
+	if gameRoom.GetOwner() != &players[0] {
 		t.Error("AddPlayer, on emptied by KickPlayer room, doesn't assing new owner!")
 	}
 }
