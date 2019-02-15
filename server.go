@@ -139,7 +139,7 @@ func main() {
 							continue
 						}
 					} else if curRoom.IsPlaying() {
-						// main logic
+						// Main Logic
 						voteReg := regexp.MustCompile(`#VOTE (\w+)`)
 						getPlayersReg := regexp.MustCompile(`#PLAYERS`)
 						if voteReg.MatchString(mesg) == true {
@@ -186,7 +186,6 @@ func main() {
 										messages <- Mesg{"DOC, SAVE A POOR OR A CORRUPT SOUL!\n",
 											curRoom, false}
 									} else {
-										// added this else clause !!!!
 										curRoom.NextStage()
 										curRoom.Reset()
 										deadWithoutDoctor := curRoom.FindChosenPlayerToDie()
@@ -213,7 +212,6 @@ func main() {
 									continue
 								}
 							}
-							// no continue here, so that other players can see our VOTES!
 						} else if getPlayersReg.MatchString(mesg) == true {
 							var playersBuffer bytes.Buffer
 							for _, pl := range curRoom.GetPlayers() {
